@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Helix Capital — Whitepaper</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #7A6230;
+    --bg: #FAFAF7;
+    --bg-dark: #0A0A0A;
+    --bg-card: #F4F2ED;
+    --bg-card2: #EEEBE3;
+    --text: #1A1A18;
+    --text-muted: #5A5A55;
+    --text-dim: #9A9A93;
+    --border: rgba(122,98,48,0.2);
+    --border-faint: rgba(0,0,0,0.07);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* COVER PAGE */
+  .cover {
+    background: var(--bg-dark);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4rem;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 40%; height: 100%;
+    background: linear-gradient(180deg, rgba(201,168,76,0.04) 0%, transparent 100%);
+    border-left: 0.5px solid rgba(201,168,76,0.1);
+    pointer-events: none;
+  }
+  .cover-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .cover-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .cover-logo span { color: rgba(255,255,255,0.35); font-weight: 300; }
+  .cover-doc-type {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    border: 0.5px solid rgba(255,255,255,0.12);
+    padding: 0.4rem 0.9rem;
+  }
+  .cover-main { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 4rem 0; }
+  .cover-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 2rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .cover-eyebrow::after { content: ''; display: block; width: 40px; height: 0.5px; background: var(--gold-dim); }
+  .cover h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 300;
+    color: #F0EDE6;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    max-width: 700px;
+    margin-bottom: 2rem;
+  }
+  .cover h1 em { font-style: italic; color: var(--gold); }
+  .cover-sub {
+    font-size: 1rem;
+    color: rgba(240,237,230,0.5);
+    max-width: 460px;
+    line-height: 1.8;
+    margin-bottom: 3.5rem;
+  }
+  .cover-metrics {
+    display: flex;
+    gap: 3rem;
+  }
+  .cover-metric-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.35rem;
+  }
+  .cover-metric-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .cover-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 0.5px solid rgba(255,255,255,0.07);
+    padding-top: 2rem;
+  }
+  .cover-bottom-left { font-size: 0.75rem; color: rgba(255,255,255,0.25); line-height: 1.6; }
+  .cover-bottom-right { font-size: 0.68rem; letter-spacing: 0.1em; color: rgba(255,255,255,0.2); text-align: right; }
+
+  /* BODY LAYOUT */
+  .doc-body { max-width: 860px; margin: 0 auto; padding: 5rem 3rem; }
+
+  /* TABLE OF CONTENTS */
+  .toc {
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-faint);
+    padding: 3rem;
+    margin-bottom: 5rem;
+  }
+  .toc-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 2rem;
+  }
+  .toc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.65rem 0;
+    border-bottom: 0.5px solid var(--border-faint);
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+  }
+  .toc-item:hover { color: var(--gold); }
+  .toc-item:last-child { border-bottom: none; }
+  .toc-section-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    color: var(--gold-dim);
+    min-width: 28px;
+  }
+  .toc-section-name { flex: 1; padding: 0 1.5rem; }
+  .toc-dots { flex: 1; border-bottom: 1px dotted var(--border-faint); margin: 0 0.5rem 0.2rem; }
+
+  /* SECTIONS */
+  .doc-section {
+    margin-bottom: 5rem;
+    padding-bottom: 5rem;
+    border-bottom: 0.5px solid var(--border-faint);
+  }
+  .doc-section:last-child { border-bottom: none; }
+  .section-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.8rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.5rem;
+  }
+  .doc-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.2rem;
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    max-width: 600px;
+  }
+  .doc-section p {
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    max-width: 680px;
+    line-height: 1.85;
+  }
+  .doc-section h3 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 2.5rem 0 1rem;
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    border-left: 2px solid var(--gold);
+    padding: 1.5rem 2rem;
+    background: var(--bg-card);
+    margin: 2rem 0;
+  }
+  .highlight-box p { margin-bottom: 0; }
+
+  /* DATA TABLE */
+  .data-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0 2rem; }
+  .data-table th {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-weight: 400;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border-faint);
+    text-align: left;
+  }
+  .data-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 0.5px solid var(--border-faint);
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td:first-child { color: var(--text); font-weight: 400; }
+  .data-table .apy-cell {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--gold);
+  }
+  .data-table .weight-cell { color: var(--text); font-weight: 400; }
+  .data-table tr.total-row td {
+    border-top: 1px solid var(--border);
+    font-weight: 500;
+    color: var(--text);
+    padding-top: 1rem;
+  }
+
+  /* SCENARIO CARDS */
+  .scenario-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-faint); margin: 1.5rem 0; }
+  .scenario-card { background: var(--bg); padding: 2rem 1.5rem; }
+  .scenario-card.mid { background: var(--bg-card); border-top: 2px solid var(--gold-dim); }
+  .sc-label { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.75rem; }
+  .sc-value { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 300; color: var(--gold); line-height: 1; margin-bottom: 0.35rem; }
+  .sc-unit { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.75rem; }
+  .sc-cond { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* RISK ITEMS */
+  .risk-block { border: 0.5px solid var(--border-faint); margin-bottom: 1px; }
+  .risk-block-header { padding: 1.25rem 1.75rem; background: var(--bg-card); display: flex; justify-content: space-between; align-items: center; }
+  .risk-block-name { font-weight: 400; font-size: 0.95rem; }
+  .risk-block-level { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.25rem 0.65rem; border: 0.5px solid; }
+  .level-alto { color: #8B3A3A; border-color: #8B3A3A; }
+  .level-medio { color: #7A6230; border-color: #7A6230; }
+  .level-bajo { color: #3A6B45; border-color: #3A6B45; }
+  .risk-block-body { padding: 1.5rem 1.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .risk-col-label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.5rem; }
+  .risk-col-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0.4rem; top: 0.5rem; bottom: 0.5rem; width: 0.5px; background: var(--border-faint); }
+  .tl-item { position: relative; padding: 0 0 2.5rem 2rem; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-dot { position: absolute; left: -1.6rem; top: 0.35rem; width: 10px; height: 10px; border: 1.5px solid var(--gold-dim); background: var(--bg); }
+  .tl-phase { font-size: 0.65rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+  .tl-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; margin-bottom: 0.5rem; }
+  .tl-body { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* FEE TABLE */
+  .fee-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-faint); }
+  .fee-cell { background: var(--bg-card); padding: 2rem 2.5rem; }
+  .fee-cell-label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 0.6rem; }
+  .fee-cell-value { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: var(--text); line-height: 1; margin-bottom: 0.4rem; }
+  .fee-cell-note { font-size: 0.8rem; color: var(--text-muted); }
+
+  /* LEGAL */
+  .legal-box {
+    background: var(--bg-card2);
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+    margin-top: 3rem;
+  }
+  .legal-box p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 0.75rem; max-width: 100%; }
+  .legal-box p:last-child { margin-bottom: 0; }
+
+  /* PRINT / PAGE */
+  @media print {
+    .cover { min-height: 100vh; page-break-after: always; }
+    .doc-section { page-break-inside: avoid; }
+  }
+  @media (max-width: 720px) {
+    .cover { padding: 2.5rem; }
+    .doc-body { padding: 3rem 1.5rem; }
+    .risk-block-body { grid-template-columns: 1fr; }
+    .scenario-grid { grid-template-columns: 1fr; }
+    .fee-grid { grid-template-columns: 1fr; }
+    .cover-metrics { flex-direction: column; gap: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="cover-logo">HELIX <span>CAPITAL</span></div>
+    <div class="cover-doc-type">Documento confidencial · Solo inversores acreditados</div>
+  </div>
+  <div class="cover-main">
+    <div class="cover-eyebrow">Whitepaper · Versión 1.0 · 2025</div>
+    <h1>Rendimiento <em>institucional</em> en el ecosistema DeFi</h1>
+    <p class="cover-sub">Estrategia de liquidez concentrada sobre los principales activos digitales. Transparencia total, gestión activa y track record demostrable.</p>
+    <div class="cover-metrics">
+      <div>
+        <div class="cover-metric-value">14–25%</div>
+        <div class="cover-metric-label">Rendimiento neto estimado anual</div>
+      </div>
+      <div>
+        <div class="cover-metric-value">2.000.000€</div>
+        <div class="cover-metric-label">Capital objetivo año 1</div>
+      </div>
+      <div>
+        <div class="cover-metric-value">5 pools</div>
+        <div class="cover-metric-label">Estrategia diversificada</div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-bottom">
+    <div class="cover-bottom-left">
+      Este documento es confidencial y está destinado exclusivamente a inversores acreditados según la normativa europea.<br/>
+      No debe ser distribuido, reproducido ni utilizado sin el consentimiento expreso de Helix Capital.
+    </div>
+    <div class="cover-bottom-right">
+      Helix Capital<br/>
+      Documento privado · 2025
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENT BODY -->
+<div class="doc-body">
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">Índice de contenidos</div>
+    <a class="toc-item" href="#s1"><span class="toc-section-num">01</span><span class="toc-section-name">Resumen ejecutivo</span></a>
+    <a class="toc-item" href="#s2"><span class="toc-section-num">02</span><span class="toc-section-name">El mercado y la oportunidad</span></a>
+    <a class="toc-item" href="#s3"><span class="toc-section-num">03</span><span class="toc-section-name">Estrategia de inversión</span></a>
+    <a class="toc-item" href="#s4"><span class="toc-section-num">04</span><span class="toc-section-name">Track record y proyecciones</span></a>
+    <a class="toc-item" href="#s5"><span class="toc-section-num">05</span><span class="toc-section-name">Estructura de comisiones</span></a>
+    <a class="toc-item" href="#s6"><span class="toc-section-num">06</span><span class="toc-section-name">Análisis y gestión de riesgos</span></a>
+    <a class="toc-item" href="#s7"><span class="toc-section-num">07</span><span class="toc-section-name">Plan de lanzamiento</span></a>
+    <a class="toc-item" href="#s8"><span class="toc-section-num">08</span><span class="toc-section-name">Marco legal y regulatorio</span></a>
+    <a class="toc-item" href="#s9"><span class="toc-section-num">09</span><span class="toc-section-name">Información legal y disclaimers</span></a>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="doc-section" id="s1">
+    <div class="section-num">01 — Resumen ejecutivo</div>
+    <h2>Una oportunidad única en las finanzas descentralizadas</h2>
+    <p>Helix Capital es un vehículo de inversión alternativa especializado en la generación de rendimientos mediante estrategias de liquidez concentrada en protocolos DeFi de primera línea. El fondo está diseñado para inversores acreditados que buscan exposición al ecosistema de las finanzas descentralizadas con una gestión profesional, activa y transparente.</p>
+    <p>A diferencia de las estrategias pasivas de yield farming, el fondo aplica liquidez concentrada en rangos de precio específicos dentro de protocolos como Uniswap V3 y Curve Finance. Esta técnica multiplica la eficiencia del capital y los ingresos por comisiones, a costa de requerir una gestión activa y continua de los rangos de precio.</p>
+    <div class="highlight-box">
+      <p>El equipo gestor acredita un rendimiento histórico del <strong>60% APY</strong> en el par ETH/wBTC y del <strong>24% APY</strong> en el par CHF Digital/USDC durante el ejercicio completo de 2025, utilizando las mismas estrategias que aplicará el fondo.</p>
+    </div>
+    <p>El fondo tiene como objetivo captar 2.000.000€ en su primer año de operación, ofreciendo a los inversores acceso a una cartera diversificada de cinco pools de liquidez con perfiles de riesgo complementarios.</p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="doc-section" id="s2">
+    <div class="section-num">02 — El mercado y la oportunidad</div>
+    <h2>Un sector en proceso de institucionalización</h2>
+    <p>Las finanzas descentralizadas han evolucionado desde un experimento tecnológico hacia una infraestructura financiera real con volúmenes de negociación que superan los de muchas bolsas tradicionales. El valor total bloqueado (TVL) en protocolos DeFi supera los 100.000 millones de dólares, con los principales protocolos acumulando años de funcionamiento ininterrumpido sin incidentes de seguridad.</p>
+    <h3>Tres tendencias que definen la oportunidad</h3>
+    <p><strong>Institucionalización progresiva.</strong> El capital institucional está entrando en DeFi buscando productos de inversión seguros, transparentes y gestionados profesionalmente. Los family offices y gestoras de patrimonio son los primeros en explorar esta clase de activo alternativa.</p>
+    <p><strong>Madurez de los protocolos.</strong> Uniswap V3, Curve Finance y Aave llevan operando varios años sin interrupciones, con auditorías de seguridad periódicas y miles de millones de dólares en liquidez. Ya no son experimentos: son infraestructura financiera probada.</p>
+    <p><strong>Monedas digitales y activos reales tokenizados.</strong> La adopción del euro digital (EURC), el franco suizo digital y el oro tokenizado (PAXG) abre estrategias de yield farming con volatilidad reducida y rendimientos superiores a los productos financieros tradicionales comparables.</p>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="doc-section" id="s3">
+    <div class="section-num">03 — Estrategia de inversión</div>
+    <h2>Liquidez concentrada: el diferencial de rendimiento</h2>
+    <p>La liquidez concentrada, introducida por Uniswap V3 en 2021, permite a los proveedores de liquidez concentrar su capital en rangos de precio específicos en lugar de distribuirlo uniformemente. Esto significa que el mismo capital genera entre 10x y 100x más comisiones en el rango activo, a costa de requerir reposicionamiento activo cuando el precio sale del rango.</p>
+    <p>La gestión de estos rangos es el núcleo del trabajo del equipo gestor y la principal justificación de las comisiones del fondo. No es una estrategia pasiva: requiere monitorización continua, análisis de volatilidad y decisiones de reposicionamiento.</p>
+    <h3>Composición de la cartera</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Pool</th>
+          <th>Tipo</th>
+          <th>Peso</th>
+          <th>APY ref. 2025</th>
+          <th>Protocolo</th>
+          <th>Rango IL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ETH / wBTC</td>
+          <td>Alta rentabilidad</td>
+          <td class="weight-cell">25%</td>
+          <td class="apy-cell">~60%</td>
+          <td>Uniswap V3</td>
+          <td>Medio</td>
+        </tr>
+        <tr>
+          <td>EURC / USDC</td>
+          <td>Ancla estable</td>
+          <td class="weight-cell">20%</td>
+          <td class="apy-cell">~18%</td>
+          <td>Curve / Uniswap V3</td>
+          <td>Nulo</td>
+        </tr>
+        <tr>
+          <td>CHF Digital / USDC</td>
+          <td>Estabilidad europea</td>
+          <td class="weight-cell">20%</td>
+          <td class="apy-cell">24%</td>
+          <td>Curve Finance</td>
+          <td>Muy bajo</td>
+        </tr>
+        <tr>
+          <td>PAXG / USDC</td>
+          <td>Oro tokenizado</td>
+          <td class="weight-cell">20%</td>
+          <td class="apy-cell">~15%</td>
+          <td>Uniswap V3</td>
+          <td>Bajo</td>
+        </tr>
+        <tr>
+          <td>USDT / DAI</td>
+          <td>Reserva y liquidez</td>
+          <td class="weight-cell">15%</td>
+          <td class="apy-cell">~12%</td>
+          <td>Curve / Aave</td>
+          <td>Nulo</td>
+        </tr>
+        <tr class="total-row">
+          <td>Total cartera</td>
+          <td>Diversificada</td>
+          <td class="weight-cell">100%</td>
+          <td class="apy-cell">~26–28% bruto</td>
+          <td>—</td>
+          <td>Bajo–medio</td>
+        </tr>
+      </tbody>
+    </table>
+    <h3>Herramientas de gestión activa</h3>
+    <p>Para garantizar la eficiencia operativa en la gestión de rangos, el fondo utiliza herramientas especializadas como Gamma Strategies y Arrakis Finance para la automatización parcial del reposicionamiento, complementadas con monitorización manual continua por parte del equipo gestor.</p>
+    <p>El 55% de la cartera (pools estables y de oro) requiere reposicionamiento poco frecuente y genera rendimientos predecibles. El 25% en ETH/wBTC es el segmento de mayor gestión activa y mayor potencial de retorno.</p>
+  </div>
+
+  <!-- SECTION 4 -->
+  <div class="doc-section" id="s4">
+    <div class="section-num">04 — Track record y proyecciones</div>
+    <h2>Rendimientos históricos verificables. Proyecciones honestas.</h2>
+    <p>Los rendimientos proyectados se basan en el track record personal del gestor principal durante el ejercicio 2025 completo, aplicando las mismas estrategias que operará el fondo. Estos datos son verificables on-chain mediante las direcciones de wallet del gestor.</p>
+    <div class="highlight-box">
+      <p><strong>60% APY anual</strong> en la pool ETH/wBTC con liquidez concentrada en Uniswap V3, durante el ejercicio completo 2025.<br/><strong>24% APY anual</strong> en la pool CHF Digital/USDC con liquidez concentrada en Curve Finance, durante el ejercicio completo 2025.</p>
+    </div>
+    <h3>Proyecciones según escenario de mercado</h3>
+    <div class="scenario-grid">
+      <div class="scenario-card">
+        <div class="sc-label">Conservador · Mercado bajista</div>
+        <div class="sc-value">8–12%</div>
+        <div class="sc-unit">Neto anual estimado</div>
+        <div class="sc-cond">Mercado en contracción sostenida. Los rangos concentrados salen con frecuencia, reduciendo comisiones. Las pools estables sostienen el rendimiento base.</div>
+      </div>
+      <div class="scenario-card mid">
+        <div class="sc-label">Base · Mercado lateral</div>
+        <div class="sc-value">14–18%</div>
+        <div class="sc-unit">Neto anual estimado</div>
+        <div class="sc-cond">Mercado sin tendencia clara. Escenario más probable según distribución histórica. Los rangos se mantienen activos la mayor parte del tiempo.</div>
+      </div>
+      <div class="scenario-card">
+        <div class="sc-label">Optimista · Mercado alcista</div>
+        <div class="sc-value">20–25%</div>
+        <div class="sc-unit">Neto anual estimado</div>
+        <div class="sc-cond">Mercado en expansión. Consistente con los rendimientos obtenidos en 2025. Máxima generación de comisiones en ETH/wBTC.</div>
+      </div>
+    </div>
+    <p style="font-size:0.78rem; color:var(--text-dim); margin-top:1rem;">Los rendimientos netos se calculan tras aplicar la comisión de gestión del 2% anual y la comisión de éxito del 20% sobre beneficios superiores al hurdle rate del 6%. Los rendimientos históricos no garantizan rendimientos futuros.</p>
+  </div>
+
+  <!-- SECTION 5 -->
+  <div class="doc-section" id="s5">
+    <div class="section-num">05 — Estructura de comisiones</div>
+    <h2>Alineación de incentivos entre gestor e inversor</h2>
+    <p>La estructura de comisiones del fondo está diseñada para alinear los intereses del equipo gestor con los de los inversores. La comisión de éxito únicamente se aplica cuando el rendimiento supera el hurdle rate del 6% anual, asegurando que el gestor solo se beneficia cuando el inversor también lo hace.</p>
+    <div class="fee-grid">
+      <div class="fee-cell">
+        <div class="fee-cell-label">Comisión de gestión</div>
+        <div class="fee-cell-value">2%</div>
+        <div class="fee-cell-note">Anual sobre el capital bajo gestión. Cubre los costes operativos, herramientas de gestión, gastos de gas y monitorización continua.</div>
+      </div>
+      <div class="fee-cell">
+        <div class="fee-cell-label">Comisión de éxito</div>
+        <div class="fee-cell-value">20%</div>
+        <div class="fee-cell-note">Sobre beneficios que superen el 6% anual (hurdle rate). Solo se activa cuando el inversor supera ese umbral de rentabilidad.</div>
+      </div>
+    </div>
+    <h3>Ejemplo de liquidación de comisiones</h3>
+    <p>Para una inversión de 100.000€ con un rendimiento bruto anual del 22%:</p>
+    <table class="data-table">
+      <thead><tr><th>Concepto</th><th>Cálculo</th><th>Importe</th></tr></thead>
+      <tbody>
+        <tr><td>Rendimiento bruto</td><td>100.000€ × 22%</td><td>22.000€</td></tr>
+        <tr><td>Comisión de gestión</td><td>100.000€ × 2%</td><td>–2.000€</td></tr>
+        <tr><td>Base para comisión de éxito</td><td>22.000€ – 6.000€ (hurdle)</td><td>16.000€</td></tr>
+        <tr><td>Comisión de éxito</td><td>16.000€ × 20%</td><td>–3.200€</td></tr>
+        <tr class="total-row"><td>Rendimiento neto para el inversor</td><td></td><td>16.800€ (16,8%)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION 6 -->
+  <div class="doc-section" id="s6">
+    <div class="section-num">06 — Análisis y gestión de riesgos</div>
+    <h2>Los riesgos existen. Aquí están y cómo los gestionamos.</h2>
+    <p>La inversión en estrategias DeFi de liquidez concentrada conlleva riesgos específicos que todo inversor debe conocer antes de comprometer capital. La transparencia sobre estos riesgos es un valor fundamental del fondo.</p>
+
+    <div class="risk-block">
+      <div class="risk-block-header">
+        <div class="risk-block-name">Impermanent Loss amplificado por liquidez concentrada</div>
+        <div class="risk-block-level level-alto">Nivel: Alto en ETH/wBTC</div>
+      </div>
+      <div class="risk-block-body">
+        <div>
+          <div class="risk-col-label">El riesgo</div>
+          <div class="risk-col-text">En liquidez concentrada, si el precio sale del rango definido, la posición deja de generar comisiones y queda expuesta a pérdidas temporales de valor superiores a las de la liquidez tradicional. En el par ETH/wBTC, movimientos del ±15% pueden provocar salidas de rango frecuentes.</div>
+        </div>
+        <div>
+          <div class="risk-col-label">Nuestra mitigación</div>
+          <div class="risk-col-text">Monitorización 24/7 con alertas automáticas. Uso de Gamma Strategies para reposicionamiento automatizado. El 55% de la cartera está en pares con IL prácticamente nulo. Las comisiones históricas obtenidas superan ampliamente las pérdidas por IL en nuestro track record 2025.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="risk-block">
+      <div class="risk-block-header">
+        <div class="risk-block-name">Riesgo de protocolo (exploits de contratos inteligentes)</div>
+        <div class="risk-block-level level-medio">Nivel: Medio</div>
+      </div>
+      <div class="risk-block-body">
+        <div>
+          <div class="risk-col-label">El riesgo</div>
+          <div class="risk-col-text">Un error o exploit en el código de los protocolos DeFi podría comprometer los fondos depositados. Aunque Uniswap, Curve y Aave llevan años operando sin incidentes, el riesgo técnico nunca es cero.</div>
+        </div>
+        <div>
+          <div class="risk-col-label">Nuestra mitigación</div>
+          <div class="risk-col-text">Inversión exclusiva en protocolos con más de 3 años de historial limpio y múltiples auditorías independientes. Diversificación entre al menos 3 protocolos distintos. Evaluación activa de seguros DeFi (Nexus Mutual) para posiciones principales.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="risk-block">
+      <div class="risk-block-header">
+        <div class="risk-block-name">Volatilidad del mercado y riesgo de precio</div>
+        <div class="risk-block-level level-medio">Nivel: Medio</div>
+      </div>
+      <div class="risk-block-body">
+        <div>
+          <div class="risk-col-label">El riesgo</div>
+          <div class="risk-col-text">Las criptomonedas pueden experimentar caídas del 30–50% en periodos cortos. El valor en euros de los activos del fondo puede reducirse significativamente en mercados bajistas, independientemente de los rendimientos generados por comisiones.</div>
+        </div>
+        <div>
+          <div class="risk-col-label">Nuestra mitigación</div>
+          <div class="risk-col-text">El 55% de la cartera está en activos estables (stablecoins y oro tokenizado). El euro digital, el franco suizo digital y USDT/DAI están diseñados para mantener paridad con sus activos de referencia, ofreciendo rendimiento sin exposición directa a la volatilidad cripto.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="risk-block">
+      <div class="risk-block-header">
+        <div class="risk-block-name">Riesgo regulatorio europeo (MiCA / AIFMD)</div>
+        <div class="risk-block-level level-bajo">Nivel: Bajo–Medio</div>
+      </div>
+      <div class="risk-block-body">
+        <div>
+          <div class="risk-col-label">El riesgo</div>
+          <div class="risk-col-text">El reglamento MiCA (en vigor desde diciembre 2024) y la directiva AIFMD regulan los criptoactivos y los fondos alternativos en la UE. Cambios regulatorios adicionales podrían afectar la operativa del fondo o la elegibilidad de ciertos activos.</div>
+        </div>
+        <div>
+          <div class="risk-col-label">Nuestra mitigación</div>
+          <div class="risk-col-text">Asesoramiento legal especializado en criptoactivos bajo normativa UE. Estructura del fondo diseñada para ser compatible con MiCA desde el inicio. Políticas KYC/AML robustas. Dirigido exclusivamente a inversores acreditados.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="risk-block">
+      <div class="risk-block-header">
+        <div class="risk-block-name">Riesgo de custodia y operacional</div>
+        <div class="risk-block-level level-bajo">Nivel: Bajo</div>
+      </div>
+      <div class="risk-block-body">
+        <div>
+          <div class="risk-col-label">El riesgo</div>
+          <div class="risk-col-text">La pérdida de acceso a las claves privadas o un hackeo de las wallets de gestión podría comprometer los fondos. Este es el riesgo operacional más controlable del ecosistema DeFi.</div>
+        </div>
+        <div>
+          <div class="risk-col-label">Nuestra mitigación</div>
+          <div class="risk-col-text">Custodia multifirma mediante Gnosis Safe (requiere múltiples firmas para cualquier transacción). Hardware wallets para las claves principales. Procedimientos documentados de acceso de emergencia. Sin puntos únicos de fallo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 -->
+  <div class="doc-section" id="s7">
+    <div class="section-num">07 — Plan de lanzamiento</div>
+    <h2>Tres fases para construir un fondo de referencia.</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Fase 1 · Meses 1–3</div>
+        <div class="tl-title">Fundaciones: credibilidad y estructura</div>
+        <div class="tl-body">Constitución del vehículo legal. Contratación de asesor jurídico especializado en MiCA/AIFMD. Desarrollo de la web institucional, whitepaper y materiales de marketing. Apertura de las wallets multifirma y pruebas de la estrategia con capital propio. Verificación on-chain del track record histórico. Objetivo: estructura sólida antes de hablar con el primer inversor externo.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Fase 2 · Meses 4–8</div>
+        <div class="tl-title">Captación: los primeros inversores de referencia</div>
+        <div class="tl-body">Captación de los primeros 3–5 inversores de referencia (family offices, inversores acreditados de red cercana). Participación en conferencias DeFi y fintech en Europa. Webinars educativos sobre la estrategia. Objetivo: alcanzar 500.000€ de capital bajo gestión con los primeros inversores. Publicación mensual de informes de rendimiento verificables.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-phase">Fase 3 · Meses 9–12</div>
+        <div class="tl-title">Escala: hacia los 2 millones de euros</div>
+        <div class="tl-body">Contacto con gestoras de patrimonio y multi-family offices. Dashboard on-chain en tiempo real para inversores. Ampliación del equipo gestor. Objetivo: 2.000.000€ de capital bajo gestión al cierre del primer año. Preparación de la estructura para el segundo año de operación.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 8 -->
+  <div class="doc-section" id="s8">
+    <div class="section-num">08 — Marco legal y regulatorio</div>
+    <h2>Transparencia regulatoria desde el primer día.</h2>
+    <p>El fondo está siendo estructurado para operar bajo la normativa europea aplicable a los fondos de inversión alternativa y a los criptoactivos. La selección de la jurisdicción y la estructura del vehículo están en proceso de definición con asesoramiento legal especializado.</p>
+    <h3>Normativa aplicable</h3>
+    <p><strong>MiCA (Markets in Crypto-Assets Regulation).</strong> En vigor desde diciembre de 2024, establece el marco regulatorio para la emisión y comercialización de criptoactivos en la UE. El fondo selecciona activos compatibles con MiCA y opera en consecuencia.</p>
+    <p><strong>AIFMD (Alternative Investment Fund Managers Directive).</strong> Regula los fondos de inversión alternativa en la UE. La estructura del fondo se diseñará para cumplir con los requisitos de la directiva o para acogerse a las exenciones aplicables para fondos de menor tamaño.</p>
+    <p><strong>Jurisdicciones consideradas.</strong> Luxemburgo, Liechtenstein e Irlanda son las jurisdicciones más utilizadas en Europa para vehículos de inversión alternativa en criptoactivos, combinando un marco regulatorio claro con eficiencia fiscal para inversores institucionales.</p>
+    <h3>Requisitos para inversores</h3>
+    <p>El fondo está dirigido exclusivamente a inversores acreditados según la normativa europea: personas físicas con patrimonio neto superior a 500.000€ o inversión mínima de 100.000€, o personas jurídicas que cumplan los requisitos de inversor profesional según MiFID II. Todos los inversores deberán completar el proceso KYC/AML.</p>
+  </div>
+
+  <!-- SECTION 9 -->
+  <div class="doc-section" id="s9">
+    <div class="section-num">09 — Información legal</div>
+    <h2>Disclaimers y avisos legales</h2>
+    <div class="legal-box">
+      <p><strong>Naturaleza del documento.</strong> Este whitepaper tiene carácter exclusivamente informativo y no constituye una oferta de valores, un prospecto de inversión ni asesoramiento financiero de ningún tipo. La información contenida en este documento es orientativa y está sujeta a cambios sin previo aviso.</p>
+      <p><strong>Rendimientos históricos.</strong> Los rendimientos históricos mencionados en este documento corresponden a la gestión personal del equipo gestor en estrategias similares a las que aplicará el fondo. Estos rendimientos no constituyen una garantía ni una previsión de rendimientos futuros. La inversión en activos digitales y protocolos DeFi conlleva riesgos significativos, incluyendo la posible pérdida total del capital invertido.</p>
+      <p><strong>Inversores acreditados.</strong> Este documento está dirigido exclusivamente a inversores acreditados o profesionales según la normativa aplicable en su jurisdicción. Si usted no es un inversor acreditado, este documento no va dirigido a usted y no debe tomar decisiones de inversión basándose en su contenido.</p>
+      <p><strong>Riesgos específicos de DeFi.</strong> La inversión en protocolos de finanzas descentralizadas conlleva riesgos adicionales a los de las inversiones financieras tradicionales, incluyendo pero no limitándose a: exploits de contratos inteligentes, pérdida permanente por impermanent loss, volatilidad extrema de activos, riesgo regulatorio en evolución y riesgo de custodia de activos digitales.</p>
+      <p><strong>No es asesoramiento.</strong> Nada en este documento debe interpretarse como asesoramiento legal, fiscal o de inversión. Le recomendamos que consulte con sus asesores profesionales antes de tomar cualquier decisión de inversión.</p>
+      <p>© 2025 Helix Capital. Todos los derechos reservados. Distribución prohibida sin consentimiento expreso.</p>
+    </div>
+  </div>
+
+</div><!-- end doc-body -->
+</body>
+</html>

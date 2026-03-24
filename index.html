@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Helix Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #7A6230;
+    --bg: #0A0A0A;
+    --bg-card: #111111;
+    --bg-card2: #161616;
+    --text: #F0EDE6;
+    --text-muted: #888880;
+    --text-dim: #555550;
+    --border: rgba(201,168,76,0.18);
+    --border-faint: rgba(255,255,255,0.06);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 16px;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.25rem 3rem;
+    border-bottom: 0.5px solid var(--border-faint);
+    background: rgba(10,10,10,0.92);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+  }
+  .nav-logo span { color: var(--text-muted); font-weight: 300; }
+  .nav-links { display: flex; gap: 2.5rem; }
+  .nav-links a {
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-cta {
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 0.5px solid var(--gold-dim);
+    padding: 0.5rem 1.25rem;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .nav-cta:hover { background: rgba(201,168,76,0.08); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 8rem 3rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.75rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .hero-eyebrow::after {
+    content: '';
+    display: block;
+    width: 40px; height: 0.5px;
+    background: var(--gold-dim);
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.2rem, 7vw, 6rem);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    max-width: 820px;
+    margin-bottom: 2rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--text-muted);
+    max-width: 500px;
+    margin-bottom: 3rem;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  .hero-actions { display: flex; gap: 1.25rem; align-items: center; }
+  .btn-primary {
+    background: var(--gold);
+    color: #0A0A0A;
+    padding: 0.85rem 2.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-ghost {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    display: flex; align-items: center; gap: 0.5rem;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .hero-stats {
+    margin-top: 6rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 0.5px solid var(--border-faint);
+    border-left: 0.5px solid var(--border-faint);
+    max-width: 900px;
+  }
+  .hero-stat {
+    padding: 2rem 2rem 1.5rem;
+    border-right: 0.5px solid var(--border-faint);
+    border-bottom: 0.5px solid var(--border-faint);
+  }
+  .hero-stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .hero-stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* SECTION SHARED */
+  section {
+    padding: 7rem 3rem;
+    border-top: 0.5px solid var(--border-faint);
+  }
+  .section-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+    max-width: 620px;
+  }
+  .section-sub {
+    color: var(--text-muted);
+    max-width: 520px;
+    line-height: 1.8;
+    margin-bottom: 4rem;
+  }
+
+  /* STRATEGY */
+  .pools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-faint);
+    border: 0.5px solid var(--border-faint);
+  }
+  .pool-card {
+    background: var(--bg-card);
+    padding: 2.25rem 2.5rem;
+    transition: background 0.2s;
+  }
+  .pool-card:hover { background: var(--bg-card2); }
+  .pool-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+  .pool-pair {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.7rem;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .pool-apy {
+    text-align: right;
+  }
+  .pool-apy-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .pool-apy-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .pool-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.65rem;
+    border: 0.5px solid var(--gold-dim);
+    color: var(--gold-dim);
+    margin-bottom: 0.75rem;
+  }
+  .pool-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+  .pool-protocols {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+  }
+  .pool-protocols span { color: var(--text-muted); }
+  .pool-weight-bar {
+    margin-top: 1.25rem;
+    height: 1px;
+    background: var(--border-faint);
+    position: relative;
+  }
+  .pool-weight-fill {
+    position: absolute; top: -0.5px; left: 0;
+    height: 2px;
+    background: var(--gold-dim);
+    transition: width 0.6s ease;
+  }
+  .pool-weight-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-top: 0.5rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* PROJECTIONS */
+  .scenarios {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-faint);
+    margin-bottom: 3rem;
+  }
+  .scenario {
+    background: var(--bg-card);
+    padding: 2.5rem 2rem;
+    text-align: center;
+  }
+  .scenario.featured {
+    background: var(--bg-card2);
+    border-top: 1px solid var(--gold-dim);
+  }
+  .scenario-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 1rem;
+  }
+  .scenario-range {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3rem;
+    font-weight: 300;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .scenario-unit {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .scenario-condition {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .fees-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border-faint);
+    border: 0.5px solid var(--border-faint);
+  }
+  .fee-item {
+    background: var(--bg-card);
+    padding: 2rem 2.5rem;
+  }
+  .fee-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+  }
+  .fee-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .fee-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* RISKS */
+  .risks-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1px;
+    background: var(--border-faint);
+    border: 0.5px solid var(--border-faint);
+  }
+  .risk-item {
+    background: var(--bg-card);
+    padding: 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  .risk-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+  .risk-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .risk-right {}
+  .risk-riesgo {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+  }
+  .risk-mitigacion {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding-left: 1rem;
+    border-left: 1px solid var(--gold-dim);
+  }
+  .risk-mitigacion strong {
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 400;
+  }
+
+  /* TEAM PLACEHOLDER */
+  .team-note {
+    border: 0.5px solid var(--border);
+    padding: 2.5rem;
+    background: var(--bg-card);
+    max-width: 700px;
+  }
+  .team-note p {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  /* CONTACT */
+  #contacto {
+    background: var(--bg-card);
+  }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+  .form-input {
+    background: var(--bg);
+    border: 0.5px solid rgba(255,255,255,0.1);
+    color: var(--text);
+    padding: 0.85rem 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--gold-dim); }
+  .form-input::placeholder { color: var(--text-dim); }
+  select.form-input option { background: #111; }
+  .form-submit {
+    background: var(--gold);
+    color: #0A0A0A;
+    border: none;
+    padding: 0.9rem 2rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+    align-self: flex-start;
+  }
+  .form-submit:hover { background: var(--gold-light); }
+  .contact-info {}
+  .contact-item {
+    padding: 1.5rem 0;
+    border-bottom: 0.5px solid var(--border-faint);
+  }
+  .contact-item:last-child { border-bottom: none; }
+  .contact-item-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.4rem;
+  }
+  .contact-item-value {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 2.5rem 3rem;
+    border-top: 0.5px solid var(--border-faint);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+  }
+  .footer-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+  .footer-disclaimer {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+  .footer-values {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    text-align: right;
+  }
+  .footer-values span {
+    color: var(--gold-dim);
+  }
+
+  /* HISTORICAL BADGE */
+  .historical-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    border: 0.5px solid var(--gold-dim);
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.08em;
+    margin-bottom: 3rem;
+  }
+  .historical-note::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { padding: 7rem 1.5rem 4rem; }
+    .hero-stats { grid-template-columns: repeat(2,1fr); }
+    section { padding: 4rem 1.5rem; }
+    .pools-grid { grid-template-columns: 1fr; }
+    .scenarios { grid-template-columns: 1fr; }
+    .fees-row { grid-template-columns: 1fr; }
+    .risk-item { grid-template-columns: 1fr; gap: 1rem; }
+    .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; }
+    .footer-values { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">HELIX <span>CAPITAL</span></div>
+  <div class="nav-links">
+    <a href="#estrategia">Estrategia</a>
+    <a href="#proyecciones">Proyecciones</a>
+    <a href="#riesgos">Riesgos</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+  <a href="#contacto" class="nav-cta">Solicitar acceso</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-eyebrow">Inversión alternativa · DeFi institucional</div>
+  <h1>Rendimiento <em>superior</em> a través de liquidez concentrada en activos digitales</h1>
+  <p class="hero-sub">
+    Gestionamos pools de liquidez concentrada en los principales protocolos DeFi, combinando la solidez de las monedas digitales estables con el potencial de ETH, BTC y activos reales tokenizados.
+  </p>
+  <div class="hero-actions">
+    <a href="#contacto" class="btn-primary">Solicitar información</a>
+    <a href="#estrategia" class="btn-ghost">Ver estrategia →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">~22%</div>
+      <div class="hero-stat-label">Rendimiento neto est. anual</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">2M€</div>
+      <div class="hero-stat-label">Capital objetivo año 1</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">5</div>
+      <div class="hero-stat-label">Pools diversificadas</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">2025</div>
+      <div class="hero-stat-label">Track record verificable</div>
+    </div>
+  </div>
+</section>
+
+<!-- ESTRATEGIA -->
+<section id="estrategia">
+  <div class="section-eyebrow">Estrategia de inversión</div>
+  <h2 class="section-title">Liquidez concentrada. Rendimiento maximizado.</h2>
+  <p class="section-sub">
+    A diferencia de la liquidez tradicional, concentramos el capital en rangos de precio específicos dentro de protocolos como Uniswap V3 y Curve Finance, multiplicando la eficiencia del capital y los ingresos por comisiones.
+  </p>
+
+  <div class="pools-grid">
+
+    <!-- Pool 1: ETH/wBTC -->
+    <div class="pool-card">
+      <div class="pool-header">
+        <div>
+          <div class="pool-pair">ETH / wBTC</div>
+          <div class="pool-badge">Alta rentabilidad</div>
+        </div>
+        <div class="pool-apy">
+          <div class="pool-apy-value">~60%</div>
+          <div class="pool-apy-label">APY hist. 2025</div>
+        </div>
+      </div>
+      <p class="pool-desc">
+        El par más dinámico de la cartera. La gestión activa de rangos concentrados en el ratio ETH/BTC generó durante 2025 el mayor retorno de comisiones del fondo. Requiere reposicionamiento periódico por la volatilidad relativa entre ambos activos.
+      </p>
+      <div class="pool-protocols">Protocolo: <span>Uniswap V3</span> · Peso en cartera: <span>25%</span></div>
+      <div class="pool-weight-bar"><div class="pool-weight-fill" style="width:25%"></div></div>
+      <div class="pool-weight-label">25% del capital bajo gestión</div>
+    </div>
+
+    <!-- Pool 2: EURC/USDC -->
+    <div class="pool-card">
+      <div class="pool-header">
+        <div>
+          <div class="pool-pair">EURC / USDC</div>
+          <div class="pool-badge">Ancla estable</div>
+        </div>
+        <div class="pool-apy">
+          <div class="pool-apy-value">~18%</div>
+          <div class="pool-apy-label">APY estimado</div>
+        </div>
+      </div>
+      <p class="pool-desc">
+        Par euro digital / dólar digital con rango de liquidez ultrajustado (±0,5%). El impermanent loss es prácticamente nulo gracias a la baja volatilidad del par, mientras que la concentración del capital dispara las comisiones generadas.
+      </p>
+      <div class="pool-protocols">Protocolo: <span>Curve Finance · Uniswap V3</span> · Peso: <span>20%</span></div>
+      <div class="pool-weight-bar"><div class="pool-weight-fill" style="width:20%"></div></div>
+      <div class="pool-weight-label">20% del capital bajo gestión</div>
+    </div>
+
+    <!-- Pool 3: CSGF/USDC -->
+    <div class="pool-card">
+      <div class="pool-header">
+        <div>
+          <div class="pool-pair">CHF Digital / USDC</div>
+          <div class="pool-badge">Estabilidad europea</div>
+        </div>
+        <div class="pool-apy">
+          <div class="pool-apy-value">24%</div>
+          <div class="pool-apy-label">APY hist. 2025</div>
+        </div>
+      </div>
+      <p class="pool-desc">
+        El franco suizo digital frente al dólar digital ofrece un rendimiento superior al de la mayoría de pares estables gracias a las fluctuaciones controladas del tipo de cambio CHF/USD. Rendimiento verificado durante todo el ejercicio 2025.
+      </p>
+      <div class="pool-protocols">Protocolo: <span>Curve Finance</span> · Peso: <span>20%</span></div>
+      <div class="pool-weight-bar"><div class="pool-weight-fill" style="width:20%"></div></div>
+      <div class="pool-weight-label">20% del capital bajo gestión</div>
+    </div>
+
+    <!-- Pool 4: PAXG/USDC -->
+    <div class="pool-card">
+      <div class="pool-header">
+        <div>
+          <div class="pool-pair">PAXG / USDC</div>
+          <div class="pool-badge">Oro tokenizado</div>
+        </div>
+        <div class="pool-apy">
+          <div class="pool-apy-value">~15%</div>
+          <div class="pool-apy-label">APY estimado</div>
+        </div>
+      </div>
+      <p class="pool-desc">
+        El oro tokenizado (Pax Gold) aporta el componente de reserva de valor y descorrelación con el mercado cripto. La liquidez concentrada en un rango moderado (±5%) permite capturar las tendencias del precio del oro sin exposición excesiva a la volatilidad.
+      </p>
+      <div class="pool-protocols">Protocolo: <span>Uniswap V3</span> · Peso: <span>20%</span></div>
+      <div class="pool-weight-bar"><div class="pool-weight-fill" style="width:20%"></div></div>
+      <div class="pool-weight-label">20% del capital bajo gestión</div>
+    </div>
+
+    <!-- Pool 5: USDT/DAI -->
+    <div class="pool-card" style="grid-column: 1 / -1;">
+      <div class="pool-header">
+        <div>
+          <div class="pool-pair">USDT / DAI</div>
+          <div class="pool-badge">Liquidez de reserva</div>
+        </div>
+        <div class="pool-apy">
+          <div class="pool-apy-value">~12%</div>
+          <div class="pool-apy-label">APY estimado</div>
+        </div>
+      </div>
+      <p class="pool-desc">
+        Colchón de liquidez con rango ultrajustado entre las dos principales stablecoins en dólares. Sirve como reserva operativa del fondo, generando rendimientos pasivos mientras se mantiene la liquidez necesaria para reposicionamientos en otras pools.
+      </p>
+      <div class="pool-protocols">Protocolo: <span>Curve Finance · Aave</span> · Peso: <span>15%</span></div>
+      <div class="pool-weight-bar"><div class="pool-weight-fill" style="width:15%"></div></div>
+      <div class="pool-weight-label">15% del capital bajo gestión</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROYECCIONES -->
+<section id="proyecciones">
+  <div class="section-eyebrow">Proyecciones de rendimiento</div>
+  <h2 class="section-title">Tres escenarios. Todos basados en datos reales.</h2>
+  <p class="section-sub">
+    Las proyecciones se fundamentan en el track record personal del gestor durante el ejercicio 2025 completo, aplicando descuentos según las condiciones de mercado esperadas. Los rendimientos son netos de comisiones.
+  </p>
+
+  <div class="historical-note">
+    Track record verificable: 60% APY en ETH/wBTC y 24% APY en CHF/USDC durante 2025 (gestión personal del equipo)
+  </div>
+
+  <div class="scenarios">
+    <div class="scenario">
+      <div class="scenario-label">Escenario conservador · Mercado bajista</div>
+      <div class="scenario-range">8–12%</div>
+      <div class="scenario-unit">Rendimiento neto anual</div>
+      <div class="scenario-condition">Mercado en contracción sostenida. Los rangos concentrados se salen con mayor frecuencia, reduciendo la generación de comisiones. Las pools estables sostienen el rendimiento base.</div>
+    </div>
+    <div class="scenario featured">
+      <div class="scenario-label">Escenario base · Mercado lateral</div>
+      <div class="scenario-range">14–18%</div>
+      <div class="scenario-unit">Rendimiento neto anual</div>
+      <div class="scenario-condition">Mercado sin tendencia clara. Los rangos concentrados se mantienen activos la mayor parte del tiempo. Escenario más probable según la distribución histórica del mercado cripto.</div>
+    </div>
+    <div class="scenario">
+      <div class="scenario-label">Escenario optimista · Mercado alcista</div>
+      <div class="scenario-range">20–25%</div>
+      <div class="scenario-unit">Rendimiento neto anual</div>
+      <div class="scenario-condition">Mercado en expansión. Máxima generación de comisiones en el par ETH/wBTC. Consistente con el rendimiento obtenido durante el ejercicio 2025.</div>
+    </div>
+  </div>
+
+  <div class="fees-row">
+    <div class="fee-item">
+      <div class="fee-label">Comisión de gestión</div>
+      <div class="fee-value">2%</div>
+      <div class="fee-note">Anual sobre el capital bajo gestión</div>
+    </div>
+    <div class="fee-item">
+      <div class="fee-label">Comisión de éxito</div>
+      <div class="fee-value">20%</div>
+      <div class="fee-note">Sobre beneficios superiores al 6% anual (hurdle rate)</div>
+    </div>
+  </div>
+</section>
+
+<!-- RIESGOS -->
+<section id="riesgos">
+  <div class="section-eyebrow">Gestión de riesgos</div>
+  <h2 class="section-title">Transparencia total sobre los riesgos inherentes.</h2>
+  <p class="section-sub">
+    La liquidez concentrada amplifica tanto los rendimientos como los riesgos. Detallamos cada uno y las medidas concretas que aplicamos para mitigarlos.
+  </p>
+
+  <div class="risks-grid">
+    <div class="risk-item">
+      <div>
+        <div class="risk-name">Impermanent Loss amplificado</div>
+        <div class="risk-tag">Riesgo principal · Liquidez concentrada</div>
+      </div>
+      <div class="risk-right">
+        <div class="risk-riesgo">En liquidez concentrada, si el precio sale del rango definido, la posición deja de generar comisiones y puede incurrir en pérdidas temporales superiores a la liquidez tradicional.</div>
+        <div class="risk-mitigacion">
+          <strong>Mitigación</strong>
+          Monitorización continua con alertas automáticas de precio. Uso de herramientas de gestión de rangos (Gamma Strategies, Arrakis Finance). El 55% de la cartera está en pares estables donde el IL es prácticamente nulo. Las comisiones históricas obtenidas superan ampliamente las pérdidas por IL.
+        </div>
+      </div>
+    </div>
+    <div class="risk-item">
+      <div>
+        <div class="risk-name">Riesgo de protocolo (smart contract)</div>
+        <div class="risk-tag">Riesgo técnico · Código</div>
+      </div>
+      <div class="risk-right">
+        <div class="risk-riesgo">Un error o exploit en el código de los protocolos DeFi podría comprometer los fondos depositados. Este riesgo es inherente a cualquier protocolo on-chain.</div>
+        <div class="risk-mitigacion">
+          <strong>Mitigación</strong>
+          Inversión exclusiva en protocolos con más de 3 años de historial sin incidentes (Uniswap, Curve, Aave). Diversificación entre 3+ plataformas. Evaluación de seguros DeFi (Nexus Mutual) para las posiciones más grandes.
+        </div>
+      </div>
+    </div>
+    <div class="risk-item">
+      <div>
+        <div class="risk-name">Volatilidad del mercado</div>
+        <div class="risk-tag">Riesgo de mercado</div>
+      </div>
+      <div class="risk-right">
+        <div class="risk-riesgo">Las criptomonedas pueden experimentar caídas del 30-50% en periodos cortos. El valor en euros de los activos del fondo puede reducirse significativamente en mercados bajistas.</div>
+        <div class="risk-mitigacion">
+          <strong>Mitigación</strong>
+          El 55% de la cartera está en activos estables o de baja volatilidad (stablecoins y oro tokenizado). El 25% en ETH/wBTC permite capturar el upside sin una exposición máxima a la volatilidad.
+        </div>
+      </div>
+    </div>
+    <div class="risk-item">
+      <div>
+        <div class="risk-name">Riesgo regulatorio</div>
+        <div class="risk-tag">Riesgo legal · Europa</div>
+      </div>
+      <div class="risk-right">
+        <div class="risk-riesgo">El marco regulatorio MiCA (en vigor desde 2024) y la regulación de fondos alternativos (AIFMD) en la UE están en evolución constante y pueden afectar la operativa.</div>
+        <div class="risk-mitigacion">
+          <strong>Mitigación</strong>
+          Asesoramiento legal especializado en regulación cripto-europea. Estructura del fondo en jurisdicción compatible con MiCA. Políticas KYC/AML robustas desde el inicio. El fondo está orientado exclusivamente a inversores acreditados.
+        </div>
+      </div>
+    </div>
+    <div class="risk-item">
+      <div>
+        <div class="risk-name">Riesgo de custodia</div>
+        <div class="risk-tag">Riesgo operacional</div>
+      </div>
+      <div class="risk-right">
+        <div class="risk-riesgo">La pérdida de acceso a las claves privadas o un hackeo de las wallets de gestión podría comprometer la totalidad de los fondos.</div>
+        <div class="risk-mitigacion">
+          <strong>Mitigación</strong>
+          Uso de soluciones de custodia multifirma (Gnosis Safe) eliminando puntos únicos de fallo. Hardware wallets para las claves principales. Procedimientos documentados de recuperación y acceso de emergencia.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto">
+  <div class="section-eyebrow">Acceso al fondo</div>
+  <h2 class="section-title">Exclusivo para inversores acreditados y family offices.</h2>
+  <p class="section-sub">
+    Si representa a un family office, gestiona un patrimonio superior a 500.000€ o es un inversor acreditado según la normativa europea, solicite información detallada y acceso al dossier completo.
+  </p>
+
+  <div class="contact-inner">
+    <form class="contact-form" onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label">Nombre completo</label>
+        <input class="form-input" type="text" placeholder="Su nombre y apellidos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" type="email" placeholder="correo@empresa.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Perfil de inversor</label>
+        <select class="form-input">
+          <option value="" disabled selected>Seleccione su perfil</option>
+          <option>Inversor acreditado particular</option>
+          <option>Family office</option>
+          <option>Gestora de patrimonio</option>
+          <option>Fondo de inversión</option>
+          <option>Otro perfil institucional</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Capital aproximado a invertir</label>
+        <select class="form-input">
+          <option value="" disabled selected>Rango de inversión</option>
+          <option>50.000€ – 100.000€</option>
+          <option>100.000€ – 250.000€</option>
+          <option>250.000€ – 500.000€</option>
+          <option>500.000€ – 1.000.000€</option>
+          <option>Más de 1.000.000€</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mensaje (opcional)</label>
+        <input class="form-input" type="text" placeholder="Preguntas o comentarios previos" />
+      </div>
+      <button class="form-submit" type="submit">Solicitar dossier completo</button>
+    </form>
+
+    <div class="contact-info">
+      <div class="contact-item">
+        <div class="contact-item-label">Inversión mínima</div>
+        <div class="contact-item-value">50.000€</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-label">Capital objetivo (Año 1)</div>
+        <div class="contact-item-value">2.000.000€</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-label">Plazo de compromiso recomendado</div>
+        <div class="contact-item-value">12 meses mínimo</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-label">Reporting</div>
+        <div class="contact-item-value">Dashboard on-chain en tiempo real + informes mensuales</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-label">Estructura del fondo</div>
+        <div class="contact-item-value">En proceso de estructuración legal bajo normativa UE (MiCA / AIFMD)</div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-item-label">Valores</div>
+        <div class="contact-item-value">Transparencia · Seguridad · Rendimiento demostrable</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Helix Capital</div>
+    <p class="footer-disclaimer">
+      Este documento tiene carácter exclusivamente informativo y no constituye una oferta de valores ni asesoramiento financiero. Los rendimientos históricos mencionados corresponden a la gestión personal del equipo gestor en estrategias similares durante 2025 y no garantizan rendimientos futuros. La inversión en activos digitales y protocolos DeFi conlleva riesgos significativos, incluyendo la posible pérdida total del capital invertido. Dirigido exclusivamente a inversores acreditados según la normativa europea aplicable. © 2025 Helix Capital.
+    </p>
+  </div>
+  <div class="footer-values">
+    <span>Transparencia</span><br/>
+    <span>Seguridad</span><br/>
+    <span>Innovación</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Guía Gnosis Safe — Paso Cero</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #C9A84C; --gold-dim: #7A6230; --gold-light: #E8C97A;
+    --bg: #FAFAF7; --bg-card: #F4F2ED; --bg-card2: #EEEBE3; --bg-dark: #0A0A0A;
+    --text: #1A1A18; --text-muted: #5A5A55; --text-dim: #9A9A93;
+    --border: rgba(122,98,48,0.2); --border-faint: rgba(0,0,0,0.07);
+    --green: #3A6B45; --red: #8B3A3A;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; font-size: 15px; }
+
+  nav { background: var(--bg-dark); padding: 1rem 3rem; display: flex; justify-content: space-between; align-items: center; }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.08em; }
+  .nav-badge { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); border: 0.5px solid rgba(255,255,255,0.1); padding: 0.3rem 0.75rem; }
+
+  .hero { background: var(--bg-dark); padding: 4rem 3rem 5rem; border-bottom: 0.5px solid rgba(201,168,76,0.15); }
+  .hero-eyebrow { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
+  .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 4vw, 3.5rem); font-weight: 300; color: #F0EDE6; line-height: 1.1; margin-bottom: 1rem; max-width: 640px; }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: 0.9rem; color: rgba(240,237,230,0.4); max-width: 480px; line-height: 1.8; }
+
+  .body { max-width: 820px; margin: 0 auto; padding: 4rem 3rem; }
+
+  .intro-box { background: var(--bg-card); border: 0.5px solid var(--border); padding: 2rem 2.5rem; margin-bottom: 3.5rem; }
+  .intro-box p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; margin-bottom: 0.75rem; }
+  .intro-box p:last-child { margin-bottom: 0; }
+
+  /* CHECKLIST PROGRESS */
+  .checklist-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .checklist-title { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); }
+  .progress-text { font-size: 0.75rem; color: var(--text-dim); }
+  .progress-track { height: 2px; background: var(--border-faint); margin-bottom: 3rem; }
+  .progress-fill { height: 2px; background: var(--gold); transition: width 0.4s ease; }
+
+  /* STEP BLOCKS */
+  .step-block { border: 0.5px solid var(--border-faint); margin-bottom: 1px; transition: border-color 0.2s; }
+  .step-block.done { border-color: rgba(58,107,69,0.3); }
+  .step-header { padding: 1.5rem 2rem; display: grid; grid-template-columns: 48px 1fr auto; gap: 1.25rem; align-items: center; cursor: pointer; background: var(--bg); transition: background 0.2s; }
+  .step-block.done .step-header { background: rgba(58,107,69,0.04); }
+  .step-header:hover { background: var(--bg-card); }
+  .step-num-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid var(--border-faint);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--text-dim);
+    transition: all 0.2s;
+  }
+  .step-block.done .step-num-circle { border-color: var(--green); color: var(--green); background: rgba(58,107,69,0.06); }
+  .step-block.done .step-num-circle::after { content: '✓'; font-family: sans-serif; font-size: 0.75rem; }
+  .step-block:not(.done) .step-num-circle .num { display: block; }
+  .step-block.done .step-num-circle .num { display: none; }
+  .step-title-group {}
+  .step-title { font-weight: 400; font-size: 0.95rem; color: var(--text); margin-bottom: 0.2rem; }
+  .step-block.done .step-title { color: var(--text-muted); }
+  .step-subtitle { font-size: 0.75rem; color: var(--text-dim); }
+  .step-toggle { font-size: 0.75rem; color: var(--text-dim); transition: transform 0.2s; user-select: none; }
+  .step-block.open .step-toggle { transform: rotate(180deg); }
+
+  .step-body { display: none; padding: 0 2rem 2rem; border-top: 0.5px solid var(--border-faint); background: var(--bg); }
+  .step-block.open .step-body { display: block; }
+  .step-body-inner { padding-top: 1.75rem; }
+
+  .step-body p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; margin-bottom: 1rem; max-width: 640px; }
+  .step-body h3 { font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); margin: 1.75rem 0 0.75rem; }
+
+  .substeps { display: flex; flex-direction: column; gap: 1px; margin: 1.25rem 0; }
+  .substep { display: flex; gap: 1rem; align-items: flex-start; padding: 1rem 1.25rem; background: var(--bg-card); }
+  .substep-check { width: 20px; height: 20px; border: 1px solid var(--border-faint); border-radius: 3px; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.15s; }
+  .substep-check.checked { background: var(--green); border-color: var(--green); color: white; font-size: 0.65rem; }
+  .substep-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+  .substep-text strong { color: var(--text); font-weight: 400; }
+
+  .warning-box { border-left: 2px solid #8B3A3A; padding: 1.25rem 1.5rem; background: rgba(139,58,58,0.04); margin: 1.25rem 0; }
+  .warning-box p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+  .warning-box .warn-label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8B3A3A; margin-bottom: 0.4rem; }
+
+  .tip-box { border-left: 2px solid var(--gold-dim); padding: 1.25rem 1.5rem; background: rgba(201,168,76,0.04); margin: 1.25rem 0; }
+  .tip-box p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+  .tip-box .tip-label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0.4rem; }
+
+  .code-block { background: var(--bg-dark); color: #C9A84C; padding: 1rem 1.25rem; font-family: monospace; font-size: 0.82rem; line-height: 1.6; margin: 1rem 0; border-radius: 2px; word-break: break-all; }
+
+  .link-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gold); color: var(--bg-dark); padding: 0.6rem 1.25rem; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; margin-top: 1rem; transition: background 0.2s; }
+  .link-btn:hover { background: var(--gold-light); }
+
+  .mark-done-btn { margin-top: 1.5rem; padding: 0.65rem 1.5rem; background: none; border: 1px solid var(--border-faint); font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); cursor: pointer; transition: all 0.2s; }
+  .mark-done-btn:hover { border-color: var(--green); color: var(--green); }
+  .step-block.done .mark-done-btn { display: none; }
+
+  /* NETWORK SELECTOR */
+  .network-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-faint); margin: 1.25rem 0; }
+  .network-card { background: var(--bg); padding: 1.25rem; cursor: pointer; border-top: 2px solid transparent; transition: all 0.15s; }
+  .network-card.selected { border-top-color: var(--gold); background: var(--bg-card); }
+  .network-card:hover:not(.selected) { background: var(--bg-card); }
+  .net-name { font-weight: 400; font-size: 0.9rem; margin-bottom: 0.25rem; }
+  .net-fee { font-size: 0.72rem; color: var(--text-dim); margin-bottom: 0.5rem; }
+  .net-rec { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); display: none; }
+  .network-card.selected .net-rec { display: block; }
+
+  /* SIGNERS */
+  .signers-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-faint); margin: 1.25rem 0; }
+  .signer-card { background: var(--bg-card); padding: 1.25rem; text-align: center; }
+  .signer-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--gold); line-height: 1; }
+  .signer-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-top: 0.25rem; }
+  .signer-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.5; }
+
+  /* SUMMARY */
+  .summary { background: var(--bg-dark); padding: 3rem; margin-top: 4rem; }
+  .summary-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300; color: #F0EDE6; margin-bottom: 0.5rem; }
+  .summary-sub { font-size: 0.85rem; color: rgba(240,237,230,0.35); margin-bottom: 2rem; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: rgba(255,255,255,0.05); }
+  .summary-cell { background: #111; padding: 1.5rem; }
+  .summary-cell-label { font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.25); margin-bottom: 0.5rem; }
+  .summary-cell-value { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--gold); }
+  .summary-next { margin-top: 2rem; font-size: 0.82rem; color: rgba(240,237,230,0.3); }
+  .summary-next span { color: var(--gold); }
+
+  @media (max-width: 680px) {
+    .body { padding: 3rem 1.5rem; }
+    nav, .hero { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .network-cards, .signers-grid, .summary-grid { grid-template-columns: 1fr; }
+    .step-header { grid-template-columns: 36px 1fr auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Helix Capital — Guía de configuración</div>
+  <div class="nav-badge">Semana 1</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Infraestructura · Gnosis Safe Multifirma</div>
+  <h1>Configura la wallet que <em>inspira confianza</em> desde el primer día</h1>
+  <p class="hero-sub">Antes de captar un solo inversor necesitas una estructura on-chain que demuestre que su dinero es seguro por diseño, no por promesa.</p>
+</div>
+
+<div class="body">
+
+  <div class="intro-box">
+    <p><strong style="color:var(--text);font-weight:400;">¿Por qué Gnosis Safe y no una wallet normal?</strong></p>
+    <p>Una wallet normal (MetaMask, Ledger) tiene un único punto de fallo: quien controla la clave privada controla todo el dinero. Un inversor externo no puede verificar que tú no puedas mover sus fondos unilateralmente.</p>
+    <p>Con Gnosis Safe, configuras reglas inmutables on-chain: por ejemplo, "se necesitan 2 de 3 firmas para mover cualquier cantidad". Ninguna persona sola puede hacer nada. Es la diferencia entre "confía en mí" y "el código garantiza que no puedo robarte aunque quisiera". Esa es exactamente la base de confianza que necesitas para los primeros inversores.</p>
+  </div>
+
+  <div class="checklist-header">
+    <div class="checklist-title">Lista de tareas — Semana 1</div>
+    <div class="progress-text"><span id="doneCount">0</span> de 6 completados</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:0%"></div></div>
+
+  <!-- STEP 1 -->
+  <div class="step-block" id="step1">
+    <div class="step-header" onclick="toggleStep('step1')">
+      <div class="step-num-circle"><span class="num">1</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Preparar las 3 wallets firmantes</div>
+        <div class="step-subtitle">Antes de crear la Safe necesitas tener listas las direcciones que firmarán</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>La Gnosis Safe multifirma necesita que le asignes quién puede firmar transacciones. Para un esquema <strong>2 de 3</strong> (recomendado) necesitas exactamente tres wallets diferentes. Aquí te explicamos qué usar para cada una.</p>
+
+        <div class="signers-grid">
+          <div class="signer-card">
+            <div class="signer-num">01</div>
+            <div class="signer-label">Firmante principal</div>
+            <div class="signer-note">Tu Ledger o hardware wallet actual. La que usas para operar. Es tu firma de gestor.</div>
+          </div>
+          <div class="signer-card">
+            <div class="signer-num">02</div>
+            <div class="signer-label">Firmante de respaldo</div>
+            <div class="signer-note">Una segunda wallet tuya (puede ser MetaMask en otro dispositivo) guardada de forma segura como backup.</div>
+          </div>
+          <div class="signer-card">
+            <div class="signer-num">03</div>
+            <div class="signer-label">Firmante de auditoría</div>
+            <div class="signer-note">Puede ser un inversor de confianza, un asesor o una wallet fría guardada en lugar separado.</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-label">Recomendación para empezar</div>
+          <p>Si aún no tienes un tercer firmante, puedes empezar con esquema <strong>2 de 2</strong> (tú + backup) y añadir el tercero más adelante. La Safe permite modificar firmantes con el propio quórum de firmas.</p>
+        </div>
+
+        <h3>Tareas de este paso</h3>
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Anota las 3 direcciones</strong> (0x...) en un documento seguro. Las necesitarás en el paso 3.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Verifica que tienes acceso</strong> a las 3 wallets haciendo una firma de prueba en cada una.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Asegura los seeds/claves privadas</strong> de las 3 wallets en ubicaciones físicas separadas.</div>
+          </div>
+        </div>
+
+        <button class="mark-done-btn" onclick="markDone('step1')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-block" id="step2">
+    <div class="step-header" onclick="toggleStep('step2')">
+      <div class="step-num-circle"><span class="num">2</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Elegir la red blockchain</div>
+        <div class="step-subtitle">Dónde va a vivir tu Safe. Impacta en los costes de gas y los protocolos disponibles.</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>Gnosis Safe está disponible en múltiples redes. Para un proyecto de yield farming en Uniswap V3 y Curve, estas son las opciones relevantes:</p>
+
+        <div class="network-cards">
+          <div class="network-card selected" onclick="selectNetwork(this)">
+            <div class="net-name">Arbitrum</div>
+            <div class="net-fee">Gas: ~$0.10–0.50 por tx</div>
+            <div class="net-note" style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">Mayor liquidez en Uniswap V3. Uniswap, Curve, Aave disponibles. La mejor opción para la estrategia del fondo.</div>
+            <div class="net-rec">✓ Recomendada</div>
+          </div>
+          <div class="network-card" onclick="selectNetwork(this)">
+            <div class="net-name">Ethereum Mainnet</div>
+            <div class="net-fee">Gas: ~$5–50 por tx</div>
+            <div class="net-note" style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">Máxima seguridad y liquidez pero costes de gas muy altos. Adecuada solo si operas con importes grandes (+50k€).</div>
+            <div class="net-rec">✓ Recomendada</div>
+          </div>
+          <div class="network-card" onclick="selectNetwork(this)">
+            <div class="net-name">Base</div>
+            <div class="net-fee">Gas: ~$0.01–0.10 por tx</div>
+            <div class="net-note" style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;">Gas casi gratuito. Uniswap V3 disponible pero menor liquidez que Arbitrum en los pares del fondo.</div>
+            <div class="net-rec">✓ Recomendada</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-label">Nuestra recomendación</div>
+          <p><strong>Arbitrum</strong> es el equilibrio ideal para este proyecto: gas bajo, alta liquidez en Uniswap V3 y Curve, y todos los protocolos de la estrategia disponibles. Si ya tienes posiciones abiertas en Ethereum mainnet, puedes mantenerlas ahí y abrir la Safe también en Arbitrum para las nuevas.</p>
+        </div>
+
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Decide la red</strong> teniendo en cuenta dónde tienes actualmente tus posiciones abiertas.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Asegúrate de tener ETH</strong> en esa red para pagar el gas de crear la Safe (~$1–5 en Arbitrum).</div>
+          </div>
+        </div>
+        <button class="mark-done-btn" onclick="markDone('step2')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-block" id="step3">
+    <div class="step-header" onclick="toggleStep('step3')">
+      <div class="step-num-circle"><span class="num">3</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Crear la Gnosis Safe en app.safe.global</div>
+        <div class="step-subtitle">El proceso completo de creación on-chain paso a paso</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>La creación de la Safe es un proceso guiado en la web oficial. Aquí te explicamos exactamente qué hacer en cada pantalla para no cometer errores.</p>
+
+        <a href="https://app.safe.global" class="link-btn" target="_blank">Ir a app.safe.global →</a>
+
+        <h3>Instrucciones paso a paso</h3>
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Conecta tu wallet principal</strong> (Ledger/MetaMask) a app.safe.global. Esta será la wallet desde la que pagas el gas de creación.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Selecciona la red</strong> (Arbitrum recomendado) en el selector de la esquina superior derecha antes de crear.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Haz clic en "Create new Safe"</strong> y ponle un nombre descriptivo. Ejemplo: <em>AurumPool-v1</em>. Este nombre es solo local, no se graba on-chain.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Añade los 3 firmantes:</strong> pega las 3 direcciones (0x...) que preparaste en el paso 1. Verifica cada una con cuidado — un error aquí es irreversible.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Establece el umbral en 2</strong> ("Required confirmations: 2 out of 3"). Esto significa que cualquier transacción necesita 2 firmas de las 3 para ejecutarse.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Revisa el resumen</strong> y confirma la transacción de creación con tu wallet. Paga el gas (~$1–5 en Arbitrum).</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Anota la dirección de tu Safe</strong> (0x...) una vez creada. Esta es la dirección pública de tu pool — la que aparecerá en el dashboard.</div>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <div class="warn-label">⚠ Importante</div>
+          <p>Verifica <strong>tres veces</strong> cada dirección de firmante antes de confirmar. Una vez creada la Safe, cambiar los firmantes requiere una transacción que todos los firmantes actuales deben aprobar. Si introduces una dirección incorrecta, podrías perder acceso.</p>
+        </div>
+
+        <p>Una vez creada, tu Safe tendrá una dirección pública como esta:</p>
+        <div class="code-block">eth:0x1234...abcd (Arbitrum)<br/>https://app.safe.global/arb1:0x1234...abcd</div>
+
+        <button class="mark-done-btn" onclick="markDone('step3')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step-block" id="step4">
+    <div class="step-header" onclick="toggleStep('step4')">
+      <div class="step-num-circle"><span class="num">4</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Mover tu capital actual a la Safe</div>
+        <div class="step-subtitle">Así el historial de rendimiento empieza desde el primer día</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>Para que el dashboard muestre tu track record real desde el día uno, necesitas que las posiciones estén abiertas desde la dirección de la Safe, no desde tu wallet personal. Esto es lo que da credibilidad on-chain a los datos.</p>
+
+        <div class="tip-box">
+          <div class="tip-label">¿Cierro mis posiciones actuales?</div>
+          <p>Depende. Si tienes posiciones activas en Uniswap V3 o Curve, tienes dos opciones: <strong>(a)</strong> cerrarlas, mover el capital a la Safe y reabrir posiciones desde ahí — el historial empezará de cero pero será limpio. <strong>(b)</strong> Mantenerlas abiertas como demostración personal y empezar el historial oficial del fondo desde la Safe con capital nuevo o el que vayas liberando.</p>
+        </div>
+
+        <h3>Proceso de transferencia</h3>
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Envía una pequeña cantidad primero</strong> (10–20 USDC) para verificar que la dirección de la Safe es correcta antes de mover importes grandes.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Confirma la recepción</strong> en app.safe.global — deberías ver el balance actualizado en la interfaz de la Safe.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Mueve el capital operativo</strong> que quieras gestionar desde la Safe. No es necesario mover todo de golpe.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Anota la fecha y el importe inicial</strong> en un documento. Este es el "día cero" de tu track record oficial.</div>
+          </div>
+        </div>
+
+        <button class="mark-done-btn" onclick="markDone('step4')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step-block" id="step5">
+    <div class="step-header" onclick="toggleStep('step5')">
+      <div class="step-num-circle"><span class="num">5</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Abrir las primeras posiciones desde la Safe</div>
+        <div class="step-subtitle">Conectar la Safe a Uniswap V3 y Curve para operar</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>Operar desde una Safe es igual que desde cualquier wallet, con la diferencia de que cada transacción necesita ser aprobada por el quórum de firmantes antes de ejecutarse. Para las operaciones rutinarias de reposicionamiento esto añade solo un paso extra.</p>
+
+        <h3>Conectar la Safe a Uniswap V3</h3>
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Ve a app.uniswap.org</strong> y en "Connect Wallet" selecciona <strong>WalletConnect</strong>.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Copia el enlace WalletConnect</strong> generado y pégalo en app.safe.global → Apps → WalletConnect.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Uniswap quedará conectado a tu Safe.</strong> Cualquier transacción que inicies en Uniswap aparecerá en la cola de la Safe para ser firmada.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Repite el proceso para Curve Finance</strong> (curve.fi) usando el mismo método WalletConnect.</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-label">Flujo de operación habitual</div>
+          <p>Inicias la transacción en Uniswap → aparece en la cola de la Safe → firmas con tu wallet principal → si necesitas segunda firma, notificas al segundo firmante → la transacción se ejecuta on-chain. En la práctica, para operaciones rutinarias puedes usar <strong>delegación</strong> a una sola firma para transacciones menores.</p>
+        </div>
+
+        <button class="mark-done-btn" onclick="markDone('step5')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step-block" id="step6">
+    <div class="step-header" onclick="toggleStep('step6')">
+      <div class="step-num-circle"><span class="num">6</span></div>
+      <div class="step-title-group">
+        <div class="step-title">Anotar la dirección de la Safe para el dashboard</div>
+        <div class="step-subtitle">El último paso antes de pasar a la Semana 2</div>
+      </div>
+      <div class="step-toggle">▼</div>
+    </div>
+    <div class="step-body">
+      <div class="step-body-inner">
+        <p>Una vez que la Safe esté operativa y con las primeras posiciones abiertas, necesitas tener listos estos datos para configurar el dashboard público de la Semana 2.</p>
+
+        <div class="substeps">
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Dirección de la Safe</strong> (0x...) — la dirección pública que aparecerá en el dashboard y que cualquiera puede verificar en Arbiscan.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Red blockchain</strong> (Arbitrum / Ethereum / Base) — necesaria para configurar las APIs correctas en el dashboard.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>Fecha de inicio y capital inicial</strong> — para que el dashboard calcule el rendimiento acumulado desde el día cero.</div>
+          </div>
+          <div class="substep">
+            <div class="substep-check" onclick="toggleCheck(this)"></div>
+            <div class="substep-text"><strong>IDs de las posiciones en Uniswap V3</strong> (NFT token IDs) — permiten al dashboard leer el estado exacto de cada posición en tiempo real.</div>
+          </div>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-label">Cómo encontrar los NFT IDs de tus posiciones</div>
+          <p>Ve a app.uniswap.org → Pool → tus posiciones. Cada posición tiene un ID numérico (ej: #485921). También puedes verlos en Arbiscan buscando tu dirección de Safe y filtrando por transacciones ERC-721.</p>
+        </div>
+
+        <button class="mark-done-btn" onclick="markDone('step6')">Marcar como completado ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="summary-title">Semana 1 completada.</div>
+    <div class="summary-sub">Cuando hayas terminado estos 6 pasos, tendrás la infraestructura lista para el dashboard.</div>
+    <div class="summary-grid">
+      <div class="summary-cell">
+        <div class="summary-cell-label">Lo que tienes</div>
+        <div class="summary-cell-value" style="font-size:1rem;color:#F0EDE6;line-height:1.6;">Safe multifirma activa con posiciones reales abiertas</div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-cell-label">Lo que esto demuestra</div>
+        <div class="summary-cell-value" style="font-size:1rem;color:#F0EDE6;line-height:1.6;">Que el dinero de inversores está protegido por código, no por confianza</div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-cell-label">Siguiente paso</div>
+        <div class="summary-cell-value" style="font-size:1rem;color:var(--gold);line-height:1.6;">Semana 2 → Dashboard público en tiempo real</div>
+      </div>
+    </div>
+    <div class="summary-next">Cuando tengas la dirección de la Safe y los primeros datos, compártelos con el equipo para configurar el dashboard. <span>La Semana 2 ya está construida.</span></div>
+  </div>
+
+</div>
+
+<script>
+function toggleStep(id) {
+  const block = document.getElementById(id);
+  if (!block.classList.contains('done')) {
+    block.classList.toggle('open');
+  }
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function markDone(id) {
+  const block = document.getElementById(id);
+  block.classList.add('done');
+  block.classList.remove('open');
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = 6;
+  const done = document.querySelectorAll('.step-block.done').length;
+  document.getElementById('doneCount').textContent = done;
+  document.getElementById('progressBar').style.width = Math.round((done / total) * 100) + '%';
+}
+
+function selectNetwork(card) {
+  document.querySelectorAll('.network-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+}
+</script>
+</body>
+</html>

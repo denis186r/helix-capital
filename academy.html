@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Helix Academy — Entiende el Yield Farming</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #7A6230;
+    --bg: #FAFAF7;
+    --bg-card: #F4F2ED;
+    --bg-card2: #EEEBE3;
+    --text: #1A1A18;
+    --text-muted: #5A5A55;
+    --text-dim: #9A9A93;
+    --border: rgba(122,98,48,0.2);
+    --border-faint: rgba(0,0,0,0.07);
+    --dark: #0A0A0A;
+    --dark-card: #111111;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border-faint);
+    padding: 1rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.06em; }
+  .nav-logo span { color: var(--text-dim); font-weight: 300; }
+  .nav-back { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--gold); }
+  .nav-fund-link {
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold); border: 0.5px solid var(--gold-dim); padding: 0.4rem 1rem; text-decoration: none; transition: all 0.2s;
+  }
+  .nav-fund-link:hover { background: rgba(201,168,76,0.08); }
+
+  /* PROGRESS BAR */
+  .progress-bar { height: 2px; background: var(--border-faint); }
+  .progress-fill { height: 2px; background: var(--gold); transition: width 0.3s; }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 3rem 4rem;
+    border-bottom: 0.5px solid var(--border-faint);
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4.2rem);
+    font-weight: 300; line-height: 1.1;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 em { font-style: italic; color: var(--gold); }
+  .hero-sub { font-size: 1rem; color: var(--text-muted); max-width: 540px; line-height: 1.8; margin-bottom: 2.5rem; }
+  .module-nav { display: flex; gap: 0; border: 0.5px solid var(--border-faint); }
+  .mod-btn {
+    padding: 0.75rem 1.5rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+    background: none; border: none; border-right: 0.5px solid var(--border-faint);
+    color: var(--text-dim); cursor: pointer; transition: all 0.2s;
+  }
+  .mod-btn:last-child { border-right: none; }
+  .mod-btn.active { background: var(--dark); color: var(--gold); }
+  .mod-btn:hover:not(.active) { background: var(--bg-card); color: var(--text); }
+
+  /* CONTENT */
+  .content { max-width: 860px; margin: 0 auto; padding: 0 3rem; }
+  .module { display: none; padding: 4rem 0; border-bottom: 0.5px solid var(--border-faint); }
+  .module.active { display: block; }
+
+  .mod-section-eyebrow { font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.75rem; }
+  .mod-section h2 {
+    font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; line-height: 1.2; margin-bottom: 1.25rem; max-width: 600px;
+  }
+  .mod-section p { color: var(--text-muted); margin-bottom: 1.25rem; max-width: 660px; line-height: 1.85; }
+  .mod-section h3 { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text); margin: 2.5rem 0 1rem; }
+
+  /* CONCEPT CARDS */
+  .concept-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-faint); border: 0.5px solid var(--border-faint); margin: 2rem 0; }
+  .concept-card { background: var(--bg); padding: 1.75rem; }
+  .concept-icon { font-size: 1.4rem; margin-bottom: 0.75rem; }
+  .concept-title { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .concept-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* STEP FLOW */
+  .steps { display: flex; flex-direction: column; gap: 1px; margin: 2rem 0; }
+  .step { display: grid; grid-template-columns: 60px 1fr; background: var(--bg-card); border: 0.5px solid var(--border-faint); }
+  .step-num {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 300;
+    color: var(--gold); border-right: 0.5px solid var(--border-faint); padding: 1.5rem;
+  }
+  .step-body { padding: 1.5rem 2rem; }
+  .step-title { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.4rem; }
+  .step-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+
+  /* HIGHLIGHT */
+  .highlight-box {
+    border-left: 2px solid var(--gold); padding: 1.5rem 2rem; background: var(--bg-card); margin: 2rem 0;
+  }
+  .highlight-box p { margin: 0; font-size: 0.9rem; }
+
+  /* COMPARISON TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+  .comp-table th { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim); font-weight: 400; padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-faint); text-align: left; }
+  .comp-table td { padding: 0.85rem 1rem; border-bottom: 0.5px solid var(--border-faint); font-size: 0.85rem; color: var(--text-muted); }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table td:first-child { color: var(--text); font-weight: 400; }
+  .comp-table .good { color: #3A6B45; font-weight: 400; }
+  .comp-table .bad { color: #8B3A3A; font-weight: 400; }
+  .comp-table .mid { color: #7A6230; font-weight: 400; }
+
+  /* INTERACTIVE SIMULATOR */
+  .simulator {
+    background: var(--bg-card2); border: 0.5px solid var(--border); padding: 2.5rem; margin: 2rem 0;
+  }
+  .sim-title { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 2rem; }
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+  .sim-inputs { display: flex; flex-direction: column; gap: 1.25rem; }
+  .sim-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .sim-label { font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); }
+  .sim-range { width: 100%; accent-color: var(--gold); cursor: pointer; }
+  .sim-value { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--gold); }
+  .sim-results { display: flex; flex-direction: column; gap: 1px; background: var(--border-faint); }
+  .sim-result-row { background: var(--bg); padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+  .sim-result-label { font-size: 0.75rem; color: var(--text-muted); }
+  .sim-result-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--text); }
+  .sim-result-value.gold { color: var(--gold); }
+
+  /* IL VISUALIZER */
+  .il-visual { background: var(--bg-card); border: 0.5px solid var(--border-faint); padding: 2rem; margin: 2rem 0; }
+  .il-bar-container { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem; }
+  .il-bar-row { display: flex; align-items: center; gap: 1rem; }
+  .il-bar-label { font-size: 0.75rem; color: var(--text-muted); min-width: 100px; }
+  .il-bar-track { flex: 1; height: 20px; background: var(--border-faint); position: relative; }
+  .il-bar-fill { height: 100%; transition: width 0.5s ease; }
+  .il-bar-fill.hodl { background: var(--text-dim); }
+  .il-bar-fill.pool { background: var(--gold-dim); }
+  .il-bar-pct { font-size: 0.75rem; color: var(--text-muted); min-width: 55px; text-align: right; }
+
+  /* POOL CARDS */
+  .pool-showcase { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border-faint); margin: 2rem 0; }
+  .pool-card-edu {
+    background: var(--bg); padding: 1.75rem 2rem;
+    border-top: 2px solid transparent; transition: border-color 0.2s;
+  }
+  .pool-card-edu:hover { border-top-color: var(--gold-dim); }
+  .pce-pair { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 400; margin-bottom: 0.35rem; }
+  .pce-type { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 1rem; }
+  .pce-apy { font-family: 'Cormorant Garamond', serif; font-size: 2rem; color: var(--gold); line-height: 1; margin-bottom: 0.25rem; }
+  .pce-apy-label { font-size: 0.65rem; letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 1rem; }
+  .pce-desc { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+  /* CTA SECTION */
+  .cta-section {
+    background: var(--dark); margin: 0; padding: 5rem 3rem;
+    display: grid; grid-template-columns: 1fr auto; gap: 3rem; align-items: center;
+  }
+  .cta-eyebrow { font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+  .cta-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; color: #F0EDE6; line-height: 1.2; margin-bottom: 1rem; }
+  .cta-title em { font-style: italic; color: var(--gold); }
+  .cta-sub { font-size: 0.9rem; color: rgba(240,237,230,0.45); max-width: 420px; line-height: 1.8; }
+  .cta-actions { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end; }
+  .btn-cta-primary {
+    background: var(--gold); color: var(--dark); padding: 0.9rem 2rem;
+    font-size: 0.78rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    text-decoration: none; white-space: nowrap; transition: background 0.2s;
+  }
+  .btn-cta-primary:hover { background: var(--gold-light); }
+  .btn-cta-ghost {
+    font-size: 0.75rem; letter-spacing: 0.08em; color: rgba(240,237,230,0.35); text-decoration: none; white-space: nowrap; transition: color 0.2s;
+  }
+  .btn-cta-ghost:hover { color: rgba(240,237,230,0.7); }
+
+  /* FOOTER */
+  footer { padding: 2rem 3rem; border-top: 0.5px solid var(--border-faint); display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; color: var(--gold); }
+  .footer-note { font-size: 0.72rem; color: var(--text-dim); max-width: 500px; }
+
+  @media (max-width: 720px) {
+    nav { padding: 1rem 1.5rem; }
+    .hero, .content { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .concept-grid, .pool-showcase { grid-template-columns: 1fr; }
+    .sim-grid { grid-template-columns: 1fr; }
+    .cta-section { grid-template-columns: 1fr; }
+    .cta-actions { align-items: flex-start; }
+    .module-nav { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">HELIX <span style="color:var(--text-dim);font-weight:300;">ACADEMY</span></div>
+  <a href="index.html" class="nav-back">← Volver al fondo</a>
+  <a href="index.html#contacto" class="nav-fund-link">Invertir ahora</a>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">Helix Academy · Formación para inversores</div>
+  <h1>Entiende el <em>yield farming</em> antes de invertir</h1>
+  <p class="hero-sub">Cuatro módulos para comprender desde los fundamentos hasta la estrategia exacta que usa el Helix Capital. Aprende antes de decidir.</p>
+  <div class="module-nav">
+    <button class="mod-btn active" onclick="showModule(0)">01 · Fundamentos</button>
+    <button class="mod-btn" onclick="showModule(1)">02 · Liquidez concentrada</button>
+    <button class="mod-btn" onclick="showModule(2)">03 · Riesgos y IL</button>
+    <button class="mod-btn" onclick="showModule(3)">04 · Las 5 pools del fondo</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- MODULE 0: FUNDAMENTOS -->
+  <div class="module active" id="mod0">
+    <div class="mod-section">
+      <div class="mod-section-eyebrow">Módulo 01 · Fundamentos</div>
+      <h2>¿Qué es el yield farming y por qué genera rendimiento?</h2>
+      <p>Imagina un banco tradicional: tú depositas dinero, el banco lo presta a otros y te da un interés. El yield farming funciona de forma similar, pero en lugar de un banco centralizado, el sistema es un conjunto de contratos inteligentes que operan de forma autónoma en la blockchain. No hay intermediarios: el código es el banco.</p>
+      <p>Cuando depositas tus activos en un pool de liquidez, estás permitiendo que otros usuarios intercambien tokens usando tus fondos. A cambio, recibes una comisión por cada intercambio que se produce en el pool. Es una fuente de ingresos pasiva: tus activos trabajan para ti mientras tú duermes.</p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-icon">🏦</div>
+          <div class="concept-title">Protocolo DeFi</div>
+          <div class="concept-text">El mercado descentralizado donde ocurren los intercambios. Actúa como un banco automatizado sin banqueros. Ejemplos: Uniswap, Curve Finance, Aave.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">💧</div>
+          <div class="concept-title">Pool de liquidez</div>
+          <div class="concept-text">Una reserva de fondos con dos activos. Los traders usan esta reserva para intercambiar un token por otro, pagando una pequeña comisión en cada operación.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">🌾</div>
+          <div class="concept-title">Proveedor de liquidez</div>
+          <div class="concept-text">La persona o fondo que deposita activos en el pool. A cambio de proporcionar liquidez, recibe una parte de todas las comisiones generadas por el trading.</div>
+        </div>
+      </div>
+
+      <h3>El proceso paso a paso</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Depositar un par de activos</div>
+            <div class="step-text">Depositas un par de tokens en proporciones equivalentes en valor. Por ejemplo, 1.000€ en ETH y 1.000€ en USDC en la pool ETH/USDC. Ambos activos entran juntos.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Recibir LP Tokens (tokens de posición)</div>
+            <div class="step-text">El protocolo te entrega LP tokens como recibo de tu depósito. Representan tu porcentaje de participación en el pool. Son tu "título de propiedad" de la posición.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">El pool genera comisiones por cada swap</div>
+            <div class="step-text">Cada vez que un trader intercambia tokens en el pool, paga una comisión (habitualmente 0.01%–0.3%). Esta comisión se acumula en el pool y se distribuye proporcionalmente a todos los proveedores de liquidez.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Retirar posición y reclamar comisiones</div>
+            <div class="step-text">En cualquier momento puedes devolver los LP tokens y recuperar tu posición inicial más las comisiones acumuladas. El rendimiento es proporcional al tiempo que mantuviste la posición activa.</div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Calculadora básica de rendimiento</h3>
+    </div>
+
+    <!-- SIMULATOR 1 -->
+    <div class="simulator">
+      <div class="sim-title">Simulador de rendimiento anual</div>
+      <div class="sim-grid">
+        <div class="sim-inputs">
+          <div class="sim-group">
+            <div class="sim-label">Capital invertido</div>
+            <input type="range" class="sim-range" id="capital" min="10000" max="500000" step="5000" value="50000" oninput="updateSim()"/>
+            <div class="sim-value" id="capitalVal">50.000€</div>
+          </div>
+          <div class="sim-group">
+            <div class="sim-label">APY estimado</div>
+            <input type="range" class="sim-range" id="apy" min="5" max="40" step="1" value="18" oninput="updateSim()"/>
+            <div class="sim-value" id="apyVal">18%</div>
+          </div>
+          <div class="sim-group">
+            <div class="sim-label">Comisión de gestión</div>
+            <input type="range" class="sim-range" id="mgmt" min="0" max="5" step="0.5" value="2" oninput="updateSim()"/>
+            <div class="sim-value" id="mgmtVal">2%</div>
+          </div>
+        </div>
+        <div class="sim-results">
+          <div class="sim-result-row">
+            <div class="sim-result-label">Rendimiento bruto anual</div>
+            <div class="sim-result-value" id="grossAnnual">9.000€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Comisión gestión</div>
+            <div class="sim-result-value" id="mgmtFee">−1.000€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Comisión éxito (>6%)</div>
+            <div class="sim-result-value" id="perfFee">−1.200€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Rendimiento neto anual</div>
+            <div class="sim-result-value gold" id="netAnnual">6.800€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Rendimiento neto mensual</div>
+            <div class="sim-result-value gold" id="netMonthly">567€</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 1: LIQUIDEZ CONCENTRADA -->
+  <div class="module" id="mod1">
+    <div class="mod-section">
+      <div class="mod-section-eyebrow">Módulo 02 · Liquidez concentrada</div>
+      <h2>La diferencia entre el 5% y el 60% de rendimiento.</h2>
+      <p>En la liquidez tradicional (Uniswap V2, por ejemplo), tu capital se distribuye uniformemente por todo el rango de precios posibles, desde cero hasta infinito. Esto significa que la mayor parte de tu capital está "durmiendo" en rangos de precio que nunca se usan.</p>
+      <p>La liquidez concentrada, introducida por Uniswap V3, permite concentrar todo tu capital en un rango de precio específico donde esperas que opere el mercado. El resultado: la misma cantidad de capital genera entre 10 y 100 veces más comisiones.</p>
+
+      <div class="highlight-box">
+        <p><strong>Analogía:</strong> Es la diferencia entre regar todo un campo de 100 hectáreas con el mismo cubo de agua (liquidez tradicional) o verter ese cubo exactamente en la raíz de la planta que necesita agua ahora mismo (liquidez concentrada).</p>
+      </div>
+
+      <h3>Liquidez tradicional vs. concentrada</h3>
+      <table class="comp-table">
+        <thead>
+          <tr><th>Característica</th><th>Tradicional (v2)</th><th>Concentrada (v3)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Distribución del capital</td><td>Uniforme en todo el rango</td><td class="good">Concentrada en rango elegido</td></tr>
+          <tr><td>Eficiencia del capital</td><td class="bad">Baja (1x)</td><td class="good">Alta (10x–100x en rango)</td></tr>
+          <tr><td>APY típico en ETH/BTC</td><td class="bad">3–8%</td><td class="good">15–60%+</td></tr>
+          <tr><td>Gestión requerida</td><td class="good">Pasiva, sin intervención</td><td class="bad">Activa, reposicionamiento periódico</td></tr>
+          <tr><td>Riesgo de IL</td><td class="mid">Bajo–Medio</td><td class="bad">Medio–Alto (si sale del rango)</td></tr>
+          <tr><td>Cuando el precio sale del rango</td><td class="good">Sigue generando (menos)</td><td class="bad">Deja de generar comisiones</td></tr>
+        </tbody>
+      </table>
+
+      <h3>¿Cómo gestiona el fondo los rangos?</h3>
+      <p>El equipo gestor define rangos de precio para cada pool basándose en análisis técnico, volatilidad histórica y condiciones de mercado. Cuando el precio se aproxima a los límites del rango, el equipo reposiciona la liquidez en un nuevo rango centrado en el precio actual.</p>
+      <p>Para automatizar y optimizar este proceso, el fondo utiliza herramientas especializadas como Gamma Strategies y Arrakis Finance, que combinan reposicionamiento automático con supervisión manual continua.</p>
+
+      <div class="highlight-box">
+        <p><strong>Track record del gestor en 2025:</strong> Aplicando liquidez concentrada en la pool ETH/wBTC durante todo el ejercicio 2025, se obtuvo un rendimiento del <strong>60% APY</strong>. En la pool CHF Digital/USDC, el rendimiento fue del <strong>24% APY</strong>. Ambos son verificables on-chain.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE 2: RIESGOS E IL -->
+  <div class="module" id="mod2">
+    <div class="mod-section">
+      <div class="mod-section-eyebrow">Módulo 03 · Riesgos e Impermanent Loss</div>
+      <h2>El riesgo más importante del yield farming explicado.</h2>
+      <p>El Impermanent Loss (pérdida no permanente) es el riesgo más específico y más malentendido del yield farming. Ocurre cuando el precio relativo de los dos activos del pool cambia respecto al momento en que depositaste. El resultado: tienes menos valor en euros que si simplemente hubieras mantenido los activos en tu cartera sin depositarlos.</p>
+      <p>Se llama "no permanente" porque, si los precios vuelven a su posición inicial, la pérdida desaparece. Se vuelve permanente solo si retiras la liquidez cuando los precios están en una posición desfavorable.</p>
+
+      <h3>Calculadora de Impermanent Loss</h3>
+    </div>
+
+    <!-- IL CALCULATOR -->
+    <div class="simulator">
+      <div class="sim-title">Calculadora de Impermanent Loss</div>
+      <div class="sim-grid">
+        <div class="sim-inputs">
+          <div class="sim-group">
+            <div class="sim-label">Inversión inicial total (€)</div>
+            <input type="range" class="sim-range" id="ilCapital" min="10000" max="200000" step="5000" value="50000" oninput="updateIL()"/>
+            <div class="sim-value" id="ilCapitalVal">50.000€</div>
+          </div>
+          <div class="sim-group">
+            <div class="sim-label">Cambio de precio del activo volátil</div>
+            <input type="range" class="sim-range" id="ilChange" min="-80" max="300" step="5" value="50" oninput="updateIL()"/>
+            <div class="sim-value" id="ilChangeVal">+50%</div>
+          </div>
+          <div class="sim-group">
+            <div class="sim-label">APY de comisiones ganadas (%)</div>
+            <input type="range" class="sim-range" id="ilFees" min="0" max="60" step="1" value="24" oninput="updateIL()"/>
+            <div class="sim-value" id="ilFeesVal">24%</div>
+          </div>
+        </div>
+        <div class="sim-results">
+          <div class="sim-result-row">
+            <div class="sim-result-label">Valor si hubieras guardado (hodl)</div>
+            <div class="sim-result-value" id="ilHodl">62.500€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Valor en el pool (sin comisiones)</div>
+            <div class="sim-result-value" id="ilPool">60.900€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Impermanent Loss</div>
+            <div class="sim-result-value" id="ilLoss" style="color:#8B3A3A">−1.600€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Comisiones ganadas (anual)</div>
+            <div class="sim-result-value" id="ilEarned" style="color:#3A6B45">+12.000€</div>
+          </div>
+          <div class="sim-result-row">
+            <div class="sim-result-label">Resultado neto final</div>
+            <div class="sim-result-value gold" id="ilNet">+10.400€</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mod-section">
+      <h3>IL en las 5 pools del fondo</h3>
+      <table class="comp-table">
+        <thead><tr><th>Pool</th><th>Riesgo de IL</th><th>Motivo</th><th>Compensación</th></tr></thead>
+        <tbody>
+          <tr><td>ETH / wBTC</td><td class="bad">Medio–Alto</td><td>Alta volatilidad relativa entre activos</td><td class="good">~60% APY en comisiones</td></tr>
+          <tr><td>EURC / USDC</td><td class="good">Prácticamente nulo</td><td>Ambos son dólares/euros digitales estables</td><td class="good">~18% APY en rango estrecho</td></tr>
+          <tr><td>CHF Digital / USDC</td><td class="good">Muy bajo</td><td>Volatilidad CHF/USD históricamente baja</td><td class="good">24% APY</td></tr>
+          <tr><td>PAXG / USDC</td><td class="mid">Bajo</td><td>Oro correlacionado pero más estable que cripto</td><td class="good">~15% APY</td></tr>
+          <tr><td>USDT / DAI</td><td class="good">Nulo</td><td>Ambas son stablecoins en dólares</td><td class="mid">~12% APY</td></tr>
+        </tbody>
+      </table>
+      <p>El diseño de la cartera del fondo busca equilibrar los altos rendimientos del par ETH/wBTC con la estabilidad y bajo IL de los pares estables. El 55% de la cartera está en pools donde el IL es prácticamente inexistente.</p>
+    </div>
+  </div>
+
+  <!-- MODULE 3: LAS 5 POOLS -->
+  <div class="module" id="mod3">
+    <div class="mod-section">
+      <div class="mod-section-eyebrow">Módulo 04 · Las 5 pools del fondo</div>
+      <h2>Cada pool tiene una función específica en la estrategia.</h2>
+      <p>La cartera del Helix Capital está compuesta por cinco pools de liquidez concentrada con perfiles de riesgo y rentabilidad complementarios. Juntas forman una estrategia diversificada que equilibra el rendimiento máximo con la estabilidad del capital.</p>
+
+      <div class="pool-showcase">
+        <div class="pool-card-edu">
+          <div class="pce-pair">ETH / wBTC</div>
+          <div class="pce-type">Alta rentabilidad · 25% del fondo</div>
+          <div class="pce-apy">~60%</div>
+          <div class="pce-apy-label">APY histórico 2025</div>
+          <div class="pce-desc">El motor de rendimiento del fondo. Requiere gestión activa intensiva del rango de liquidez. La correlación entre ETH y BTC permite rangos relativamente estables. Verificado en todo 2025.</div>
+        </div>
+        <div class="pool-card-edu">
+          <div class="pce-pair">EURC / USDC</div>
+          <div class="pce-type">Ancla estable · 20% del fondo</div>
+          <div class="pce-apy">~18%</div>
+          <div class="pce-apy-label">APY estimado con LC</div>
+          <div class="pce-desc">Euro digital frente a dólar digital. Rango ultrajustado de ±0,5%. El IL es prácticamente nulo. La liquidez concentrada convierte una diferencia de tipo de cambio mínima en comisiones significativas.</div>
+        </div>
+        <div class="pool-card-edu">
+          <div class="pce-pair">CHF Digital / USDC</div>
+          <div class="pce-type">Estabilidad europea · 20% del fondo</div>
+          <div class="pce-apy">24%</div>
+          <div class="pce-apy-label">APY histórico 2025</div>
+          <div class="pce-desc">Franco suizo digital frente a dólar digital. Las fluctuaciones controladas del tipo de cambio CHF/USD generan más volumen de trading que otros pares estables. Rendimiento verificado en 2025.</div>
+        </div>
+        <div class="pool-card-edu">
+          <div class="pce-pair">PAXG / USDC</div>
+          <div class="pce-type">Oro tokenizado · 20% del fondo</div>
+          <div class="pce-apy">~15%</div>
+          <div class="pce-apy-label">APY estimado</div>
+          <div class="pce-desc">Oro físico tokenizado (Pax Gold) frente a dólar digital. Aporta descorrelación con el mercado cripto. La demanda de oro como activo refugio genera volumen de trading constante en el pool.</div>
+        </div>
+      </div>
+
+      <div class="pool-card-edu" style="background:var(--bg-card); border:0.5px solid var(--border-faint); padding:1.75rem 2rem; margin-top:1px;">
+        <div class="pce-pair">USDT / DAI</div>
+        <div class="pce-type">Reserva y liquidez operativa · 15% del fondo</div>
+        <div class="pce-apy">~12%</div>
+        <div class="pce-apy-label">APY estimado</div>
+        <div class="pce-desc">Reserva operativa del fondo. Genera rendimientos pasivos mientras mantiene la liquidez necesaria para reposicionar otras pools. IL nulo al ser dos stablecoins en dólares. La liquidez concentrada en rango ultrajustado maximiza las comisiones.</div>
+      </div>
+
+      <h3>Distribución de la cartera</h3>
+      <div class="il-visual">
+        <div style="font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:1.5rem;">Peso por pool en la cartera del fondo</div>
+        <div class="il-bar-container">
+          <div class="il-bar-row">
+            <div class="il-bar-label">ETH / wBTC</div>
+            <div class="il-bar-track"><div class="il-bar-fill pool" style="width:25%; background:var(--gold);"></div></div>
+            <div class="il-bar-pct" style="color:var(--gold);">25%</div>
+          </div>
+          <div class="il-bar-row">
+            <div class="il-bar-label">EURC / USDC</div>
+            <div class="il-bar-track"><div class="il-bar-fill pool" style="width:20%; background:var(--gold-dim);"></div></div>
+            <div class="il-bar-pct">20%</div>
+          </div>
+          <div class="il-bar-row">
+            <div class="il-bar-label">CHF / USDC</div>
+            <div class="il-bar-track"><div class="il-bar-fill pool" style="width:20%; background:var(--gold-dim);"></div></div>
+            <div class="il-bar-pct">20%</div>
+          </div>
+          <div class="il-bar-row">
+            <div class="il-bar-label">PAXG / USDC</div>
+            <div class="il-bar-track"><div class="il-bar-fill pool" style="width:20%; background:var(--gold-dim);"></div></div>
+            <div class="il-bar-pct">20%</div>
+          </div>
+          <div class="il-bar-row">
+            <div class="il-bar-label">USDT / DAI</div>
+            <div class="il-bar-track"><div class="il-bar-fill pool" style="width:15%; background:var(--text-dim);"></div></div>
+            <div class="il-bar-pct">15%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <p>El 55% de la cartera (EURC/USDC + CHF/USDC + USDT/DAI) está en activos con IL prácticamente nulo. El 25% en ETH/wBTC aporta el mayor rendimiento con gestión activa intensiva. El 20% en PAXG/USDC diversifica con un activo real tokenizado.</p>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end content -->
+
+<!-- CTA -->
+<div class="cta-section">
+  <div>
+    <div class="cta-eyebrow">¿Listo para dar el siguiente paso?</div>
+    <div class="cta-title">Ahora que entiendes la estrategia,<br/><em>conoce el fondo.</em></div>
+    <p class="cta-sub">El Helix Capital aplica exactamente lo que has aprendido en estos módulos, con gestión profesional, transparencia total y un track record verificable de 2025.</p>
+  </div>
+  <div class="cta-actions">
+    <a href="index.html" class="btn-cta-primary">Ver el fondo completo</a>
+    <a href="whitepaper.html" class="btn-cta-ghost">Leer el whitepaper →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">Helix Academy</div>
+  <div class="footer-note">Contenido educativo creado por el equipo del Helix Capital. No constituye asesoramiento financiero. La inversión en activos digitales conlleva riesgos, incluida la posible pérdida total del capital.</div>
+</footer>
+
+<script>
+function showModule(index) {
+  document.querySelectorAll('.module').forEach((m, i) => {
+    m.classList.toggle('active', i === index);
+  });
+  document.querySelectorAll('.mod-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === index);
+  });
+  window.scrollTo({ top: document.querySelector('.hero').offsetHeight + 60, behavior: 'smooth' });
+}
+
+function fmt(n) {
+  return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0 }).format(Math.round(n)) + '€';
+}
+
+function updateSim() {
+  const capital = +document.getElementById('capital').value;
+  const apy = +document.getElementById('apy').value / 100;
+  const mgmt = +document.getElementById('mgmt').value / 100;
+  const hurdle = 0.06;
+  const perfRate = 0.20;
+
+  document.getElementById('capitalVal').textContent = fmt(capital);
+  document.getElementById('apyVal').textContent = Math.round(apy * 100) + '%';
+  document.getElementById('mgmtVal').textContent = Math.round(mgmt * 100) + '%';
+
+  const gross = capital * apy;
+  const mgmtFee = capital * mgmt;
+  const hurdleAmt = capital * hurdle;
+  const perfBase = Math.max(0, gross - mgmtFee - hurdleAmt);
+  const perfFee = perfBase * perfRate;
+  const net = gross - mgmtFee - perfFee;
+
+  document.getElementById('grossAnnual').textContent = fmt(gross);
+  document.getElementById('mgmtFee').textContent = '−' + fmt(mgmtFee);
+  document.getElementById('perfFee').textContent = '−' + fmt(perfFee);
+  document.getElementById('netAnnual').textContent = fmt(net);
+  document.getElementById('netMonthly').textContent = fmt(net / 12);
+}
+
+function updateIL() {
+  const capital = +document.getElementById('ilCapital').value;
+  const changePct = +document.getElementById('ilChange').value / 100;
+  const fees = +document.getElementById('ilFees').value / 100;
+
+  document.getElementById('ilCapitalVal').textContent = fmt(capital);
+  document.getElementById('ilChangeVal').textContent = (changePct >= 0 ? '+' : '') + Math.round(changePct * 100) + '%';
+  document.getElementById('ilFeesVal').textContent = Math.round(fees * 100) + '%';
+
+  const priceRatio = 1 + changePct;
+  const ilPct = 2 * Math.sqrt(priceRatio) / (1 + priceRatio) - 1;
+  const hodlValue = capital * (1 + changePct / 2);
+  const poolValue = capital * (1 + ilPct);
+  const ilAmount = poolValue - hodlValue;
+  const feesEarned = capital * fees;
+  const netResult = ilAmount + feesEarned;
+
+  document.getElementById('ilHodl').textContent = fmt(hodlValue);
+  document.getElementById('ilPool').textContent = fmt(poolValue);
+  document.getElementById('ilLoss').textContent = (ilAmount >= 0 ? '+' : '') + fmt(ilAmount);
+  document.getElementById('ilLoss').style.color = ilAmount >= 0 ? '#3A6B45' : '#8B3A3A';
+  document.getElementById('ilEarned').textContent = '+' + fmt(feesEarned);
+  document.getElementById('ilNet').textContent = (netResult >= 0 ? '+' : '') + fmt(netResult);
+  document.getElementById('ilNet').style.color = netResult >= 0 ? 'var(--gold)' : '#8B3A3A';
+}
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY;
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = Math.round((scrolled / maxScroll) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+});
+
+updateSim();
+updateIL();
+</script>
+</body>
+</html>
