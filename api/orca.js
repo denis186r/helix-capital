@@ -1,3 +1,11 @@
+const OPEN_TIMESTAMP = 1742817600; // 24 Mar 2026 00:00 UTC
+
+function calcFeesPct(apy) {
+  const daysActive = Math.max(1, (Date.now() / 1000 - OPEN_TIMESTAMP) / 86400);
+  const pct = (parseFloat(apy) * daysActive) / 365;
+  return pct.toFixed(4);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -108,7 +116,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      inRange, apy, feesPct: null,
+      inRange, apy, feesPct: calcFeesPct(apy),
       tickLower, tickUpper, currentTick,
       tvlUSD: tvlUSD.toFixed(0),
       poolAddress: poolPubkey,
@@ -117,7 +125,7 @@ export default async function handler(req, res) {
 
   } catch(err) {
     return res.status(200).json({
-      inRange: true, apy: '24.0', feesPct: null,
+      inRange: true, apy: '19.0', feesPct: calcFeesPct('19.0'),
       source: 'fallback', error: err.message
     });
   }
