@@ -46,7 +46,15 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!data.data?.position) {
-      return res.status(404).json({ error: 'Position not found' });
+      return res.status(404).json({ 
+        error: 'Position not found',
+        debug: {
+          hasData: !!data.data,
+          keys: data.data ? Object.keys(data.data) : [],
+          errors: data.errors || null,
+          raw: JSON.stringify(data).slice(0, 500)
+        }
+      });
     }
 
     const pos = data.data.position;
