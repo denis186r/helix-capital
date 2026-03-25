@@ -1,6 +1,6 @@
 /**
  * api/history.js
- * Devuelve la serie histÃģrica completa desde Upstash Redis usando fetch (sin librerÃ­as).
+ * Devuelve la serie histórica completa desde Upstash Redis usando fetch (sin librerías).
  */
 
 async function kvGet(key) {
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
 
   try {
     const rawIndex = await kvGet("snapshot:index");
-    const index = rawIndex ? JSON.parse(rawIndex) : [];
+    const index = Array.isArray(rawIndex) ? rawIndex : (rawIndex ? JSON.parse(rawIndex) : []);
 
     if (index.length === 0) {
       return res.status(200).json({ days: [], message: "No snapshots yet" });
@@ -28,7 +28,8 @@ export default async function handler(req, res) {
     const snapshots = await Promise.all(
       index.map(async (dateKey) => {
         const raw = await kvGet(`snapshot:${dateKey}`);
-        return raw ? JSON.parse(raw) : null;
+        if (!raw) return null;
+        return typeof raw === 'object' ? raw : JSON.parse(raw);
       })
     );
 
