@@ -6,11 +6,13 @@
 async function kvGet(key) {
   const url = process.env.KV_REST_API_URL;
   const token = process.env.KV_REST_API_TOKEN;
-  const res = await fetch(`${url}/get/${key}`, {
-    headers: { Authorization: `Bearer ${token}` },
+  const res = await fetch(`${url}/pipeline`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify([["GET", key]]),
   });
   const data = await res.json();
-  return data.result ?? null;
+  return data[0]?.result ?? null;
 }
 
 export default async function handler(req, res) {
