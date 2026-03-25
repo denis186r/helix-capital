@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const POSITION_ID = '5387381';
   const API_KEY = '0f725f2449c4f6f2604e60343492df1c';
-  const URL = 'https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV';
+  const URL = 'https://gateway.thegraph.com/api/subgraphs/id/FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX';
 
   const query = `{
     position(id: "${POSITION_ID}") {
