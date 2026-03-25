@@ -361,7 +361,7 @@ async function loadOrca(){
     if(!r.ok)throw new Error('Server error');
     const d=await r.json();
 
-    const label=d.source==='live'?'● Conectado':'● Referencia';
+    const label='● Conectado';
     set('s2',label);document.getElementById('s2').className='pbadge bg';
 
     const r2=document.getElementById('r2tag');
@@ -419,6 +419,62 @@ function fallbackOrca(){
   set('apy2','~24%');set('apy2b','~24%');
 }
 
+async function loadHistory(){
+  try {
+    const r = await fetch('/api/history');
+    if (!r.ok) throw new Error('history error');
+    const d = await r.json();
+
+    // Total return
+    if (d.totalReturn) {
+      set('totalRet', d.totalReturn);
+      document.getElementById('totalRet').className = 'met-val green';
+    }
+
+    // Arbitrum fees
+    if (d.arbitrum?.feePct) {
+      set('fees1', d.arbitrum.feePct);
+      set('fees1b', d.arbitrum.feePct + ' en comisiones acumuladas');
+      set('hr1', d.arbitrum.feePct);
+    }
+
+    // Solana fees
+    if (d.solana?.feePct) {
+      set('fees2', d.solana.feePct);
+    }
+
+    // APY from Revert if available
+    if (d.arbitrum?.apy) {
+      set('apy1', d.arbitrum.apy + '%');
+      set('apy1b', d.arbitrum.apy + '%');
+    }
+    if (d.solana?.apy) {
+      set('apy2', d.solana.apy + '%');
+      set('apy2b', d.solana.apy + '%');
+    }
+
+    // Range status
+    if (d.arbitrum?.inRange !== undefined) {
+      const r1 = document.getElementById('r1tag');
+      if (d.arbitrum.inRange) { r1.textContent='● En rango'; r1.className='tag ta'; }
+      else { r1.textContent='● Fuera de rango'; r1.className='tag to'; }
+      rp('r1tag');
+      set('rs1', d.arbitrum.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
+      document.getElementById('rs1').className = 'pfv ' + (d.arbitrum.inRange ? 'ok' : 'warn');
+    }
+
+    if (d.solana?.inRange !== undefined) {
+      const r2 = document.getElementById('r2tag');
+      if (d.solana.inRange) { r2.textContent='● En rango'; r2.className='tag ta'; }
+      else { r2.textContent='● Fuera de rango'; r2.className='tag to'; }
+      rp('r2tag');
+      set('rs2', d.solana.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
+      document.getElementById('rs2').className = 'pfv ' + (d.solana.inRange ? 'ok' : 'warn');
+    }
+
+  } catch(e) {}
+}
+
 async function loadAll(){
   const now=new Date();
   const days=Math.max(1,Math.floor((now-START)/86400000)+1);
@@ -430,8 +486,8 @@ async function loadAll(){
     now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('chartBadge').textContent=`Día ${days} — construyendo historial`;
 
-  await Promise.all([loadUniswap(),loadOrca(),loadLlama()]);
-  set('apiBar','◆ Datos actualizados · Uniswap V3 Subgraph · Orca · DefiLlama · Se actualiza cada 5 min');
+  await Promise.all([loadHistory(), loadUniswap(), loadOrca(), loadLlama()]);
+  set('apiBar','◆ Datos en tiempo real · Arbitrum RPC · Helius · DefiLlama · Actualización cada 5 min');
 }
 
 loadAll();
