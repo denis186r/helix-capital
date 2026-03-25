@@ -223,7 +223,7 @@
           <div class="plinks">
             <a class="plink" href="https://arbiscan.io/address/0x61d736F10F854712b5ffe9cFabdb967D18fa7aD9" target="_blank">Safe en Arbiscan ↗</a>
             <a class="plink" href="https://app.uniswap.org/pools/5387381" target="_blank">Posición #5387381 ↗</a>
-            <a class="plink" href="https://revert.finance/#/uniswap-v3/arbitrum/0x61d736F10F854712b5ffe9cFabdb967D18fa7aD9" target="_blank">Análisis en Revert ↗</a>
+            
           </div>
         </div>
       </div>
@@ -313,7 +313,8 @@ const START=new Date('2026-03-24');
 const ORCA_POS='EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG';
 const ORCA_NFT='FbDA6crPg4vLKw94ikEHANYMPeUVSPm1SWDgKvYkHRxt';
 const UNI_ID='5387381';
-const UNI_URL='https://gateway.thegraph.com/api/0f725f2449c4f6f2604e60343492df1c/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV';
+const UNI_URL='https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV';
+const UNI_KEY='0f725f2449c4f6f2604e60343492df1c';
 
 function rp(id){const e=document.getElementById(id);if(e)e.classList.remove('pulse');}
 function set(id,val){const e=document.getElementById(id);if(e){e.textContent=val;rp(id);}}
@@ -322,7 +323,7 @@ function isInRange(cur,lo,hi){return parseInt(cur)>=parseInt(lo)&&parseInt(cur)<
 async function loadUniswap(){
   const q=`{position(id:"${UNI_ID}"){liquidity token0{symbol decimals}token1{symbol decimals}tickLower{tickIdx}tickUpper{tickIdx}pool{tick feeTier poolDayData(first:7,orderBy:date,orderDirection:desc){feesUSD tvlUSD}}collectedFeesToken0 collectedFeesToken1 depositedToken0 depositedToken1}}`;
   try{
-    const r=await fetch(UNI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:q})});
+    const r=await fetch(UNI_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+UNI_KEY},body:JSON.stringify({query:q})});
     const d=await r.json();
     const pos=d.data?.position;
     if(!pos)throw new Error('No position data');
@@ -358,7 +359,7 @@ async function loadUniswap(){
       set('fees1','+'+pct);set('fees1b','+'+pct+' en comisiones');
       set('totalRet','+'+pct);set('hr1','+'+pct);
     } else {
-      set('fees1','Ver en Revert');set('fees1b','Ver en Revert →');
+      set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
       set('totalRet','Ver on-chain');set('hr1','Ver on-chain');
     }
 
@@ -415,7 +416,7 @@ function fallbackUni(){
   r.textContent='● En rango';r.className='tag ta';rp('r1tag');
   set('rs1','● Activa · generando comisiones');
   document.getElementById('rs1').className='pfv ok';
-  set('fees1','Ver en Revert');set('fees1b','Ver en Revert →');
+  set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
   set('apy1','~60%');set('apy1b','~60%');
   set('ft1','0.30%');set('totalRet','Ver on-chain');set('hr1','Ver on-chain');
 }
