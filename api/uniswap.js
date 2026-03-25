@@ -10,25 +10,8 @@ export default async function handler(req, res) {
   const URL = 'https://gateway.thegraph.com/api/subgraphs/id/FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX';
 
   const query = `{
-    position(id: "${POSITION_ID}") {
-      id
-      liquidity
-      hashOpened
-      tickLower { tickIndex }
-      tickUpper { tickIndex }
-      pool {
-        tick
-        activeLiquidity
-        totalValueLockedUSD
-        dailySnapshots(first: 7, orderBy: timestamp, orderDirection: desc) {
-          dailyTotalRevenueUSD
-          totalValueLockedUSD
-          timestamp
-        }
-      }
-      withdrawnTokenAmounts
-      depositedTokenAmounts
-      cumulativeRewardUSD
+    __type(name: "Position") {
+      fields { name }
     }
   }`;
 
@@ -44,17 +27,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    if (!data.data?.position) {
-      return res.status(404).json({ 
-        error: 'Position not found',
-        debug: {
-          hasData: !!data.data,
-          keys: data.data ? Object.keys(data.data) : [],
-          errors: data.errors || null,
-          raw: JSON.stringify(data).slice(0, 500)
-        }
-      });
-    }
+    return res.status(200).json({ schema: data });
 
     const pos = data.data.position;
     const currentTick = parseInt(pos.pool.tick);
