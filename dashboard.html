@@ -134,8 +134,8 @@
       <div class="met-sub" id="retSub">Desde 24/03/2026</div>
     </div>
     <div class="met">
-      <div class="met-label">Comisiones ETH/wBTC</div>
-      <div class="met-val green pulse" id="fees1">—</div>
+      <div class="met-label">Comisiones VCHF/USDC</div>
+      <div class="met-val green pulse" id="feesTop">—</div>
       <div class="met-sub">Acumuladas desde apertura</div>
     </div>
     <div class="met">
@@ -342,11 +342,10 @@ async function loadUniswap(){
     if(d.feesPct){
       set('fees1','+'+d.feesPct+'%');
       set('fees1b','+'+d.feesPct+'% en comisiones');
-      set('totalRet','+'+d.feesPct+'%');
       set('hr1','+'+d.feesPct+'%');
     } else {
       set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
-      set('totalRet','Ver on-chain');set('hr1','Ver on-chain');
+      set('hr1','Ver on-chain');
     }
 
     set('posStatus','2 activas · datos en vivo');
@@ -374,7 +373,10 @@ async function loadOrca(){
     document.getElementById('rs2').className='pfv '+(d.inRange?'ok':'warn');
 
     if(d.apy){set('apy2',d.apy+'%');set('apy2b',d.apy+'%');}
-    if(d.feesPct){set('fees2','+'+d.feesPct+'%');}
+    if(d.feesPct){
+      set('fees2','+'+d.feesPct+'%');
+      set('feesTop','+'+d.feesPct+'%');
+    }
     else{set('fees2','Ver en Orca →');}
   }catch(e){
     set('s2','Error');document.getElementById('s2').className='pbadge br';
