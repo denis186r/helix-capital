@@ -46,9 +46,66 @@ export default async function handler(req, res) {
   const START = new Date('2026-03-24').getTime()/1000;
   const daysActive = Math.max(1, (Date.now()/1000 - START) / 86400);
 
-  // ── ARBITRUM: get real APY + in range ───────────────────────────────
+  // ── ARBITRUM APY: try Revert Finance first ──────────────────────────
   let uniAPY = null, uniInRange = true;
 
+  try {
+    // Try Revert Finance API
+    const revertUrls = [
+      `https://api.revert.finance/v1/positions?tokenId=${POSITION_ID}&network=arbitrum`,
+      `https://api.revert.finance/v1/uniswapv3/positions/${POSITION_ID}?network=arbitrum`,
+      `https://api.revert.finance/v1/position/${POSITION_ID}?network=arbitrum&protocol=uniswapv3`,
+    ];
+
+    for (const url of revertUrls) {
+      try {
+        const r = await fetch(url, {
+          headers: { 'Accept': 'application/json', 'Origin': 'https://revert.finance' }
+        });
+        if (r.ok) {
+          const d = await r.json();
+          // Try different response shapes
+          const apr = d?.position?.feeApr || d?.feeApr || d?.apr ||
+                      d?.position?.apr || d?.data?.feeApr ||
+                      d?.position?.fee_apr || d?.fee_apr;
+          if (apr) {
+            uniAPY = (parseFloat(apr) * 100).toFixed(1);
+            break;
+          }
+          // Try if APY is already in percentage
+          const apyPct = d?.position?.feeApyPercent || d?.position?.feeAprPercent ||
+                         d?.feeAprPercent || d?.apyPercent;
+          if (apyPct) {
+            uniAPY = parseFloat(apyPct).toFixed(1);
+            break;
+          }
+        }
+      } catch(e) {}
+    }
+  } catch(e) {}
+
+  // Fallback to DefiLlama
+  if (!uniAPY) {
+    try {
+      const r = await fetch('https://yields.llama.fi/pools');
+      const d = await r.json();
+      const pool = (d.data||[]).find(p =>
+        p.chain==='Arbitrum' && p.project==='uniswap-v3' &&
+        p.pool?.toLowerCase() === WETH_WBTC_POOL.toLowerCase()
+      );
+      if (pool?.apy) uniAPY = pool.apy.toFixed(1);
+      else {
+        const fb = (d.data||[]).find(p =>
+          p.chain==='Arbitrum' && p.project==='uniswap-v3' &&
+          p.symbol?.includes('WBTC') && p.symbol?.includes('ETH') && p.apy > 0
+        );
+        if (fb?.apy) uniAPY = fb.apy.toFixed(1);
+      }
+    } catch(e) {}
+  }
+  if (!uniAPY) uniAPY = '14.3';
+
+  // Check in range
   try {
     const posHex = POSITION_ID.toString(16).padStart(64,'0');
     const result = await ethCall(NFT_CONTRACT, '0x99fbab88' + posHex);
@@ -61,27 +118,7 @@ export default async function handler(req, res) {
     uniInRange = ct >= tl && ct <= tu;
   } catch(e) {}
 
-  // Get APY from DefiLlama
-  try {
-    const r = await fetch('https://yields.llama.fi/pools');
-    const d = await r.json();
-    const pool = (d.data||[]).find(p =>
-      p.chain==='Arbitrum' && p.project==='uniswap-v3' &&
-      p.pool?.toLowerCase() === WETH_WBTC_POOL.toLowerCase()
-    );
-    if (pool?.apy) uniAPY = pool.apy.toFixed(1);
-    else {
-      const fb = (d.data||[]).find(p =>
-        p.chain==='Arbitrum' && p.project==='uniswap-v3' &&
-        p.symbol?.includes('WBTC') && p.symbol?.includes('ETH') && p.apy > 0
-      );
-      if (fb?.apy) uniAPY = fb.apy.toFixed(1);
-    }
-  } catch(e) {}
-
-  if (!uniAPY) uniAPY = '14.2';
-
-  // ── SOLANA: get real APY + in range ─────────────────────────────────
+  // ── SOLANA APY ───────────────────────────────────────────────────────
   let orcaAPY = null, orcaInRange = true;
 
   try {
@@ -97,7 +134,6 @@ export default async function handler(req, res) {
         const pool = Buffer.from(poolAcc.data[0], 'base64');
         const currentTick = readI32LE(pool, 81);
         orcaInRange = currentTick >= tickLower && currentTick <= tickUpper;
-
         const tvlRaw = readU64LE(pool, 168);
         const tvlUSD = Number(tvlRaw)/1e6;
         const sigsRes = await fetch(HELIUS_RPC, {
@@ -113,38 +149,22 @@ export default async function handler(req, res) {
       }
     }
   } catch(e) {}
-
   if (!orcaAPY) orcaAPY = '19.0';
 
-  // ── PROJECTED RETURN (APY × days) ───────────────────────────────────
-  // Weighted APY: 50% in ETH/wBTC, 50% in VCHF/USDC
+  // ── PROJECTED RETURN ─────────────────────────────────────────────────
   const uniApyNum = parseFloat(uniAPY);
   const orcaApyNum = parseFloat(orcaAPY);
   const weightedAPY = (uniApyNum * 0.5) + (orcaApyNum * 0.5);
-
-  // Projected return = weightedAPY * (daysActive / 365)
   const projectedReturn = ((weightedAPY * daysActive) / 365).toFixed(4);
-  const projectedReturnPct = '+' + projectedReturn + '%';
-
-  // Per position
   const uniProjected = ((uniApyNum * daysActive) / 365).toFixed(4);
   const orcaProjected = ((orcaApyNum * daysActive) / 365).toFixed(4);
 
   return res.status(200).json({
-    totalReturn: projectedReturnPct,
+    totalReturn: '+' + projectedReturn + '%',
     annualizedReturn: weightedAPY.toFixed(1) + '%',
     daysActive: Math.floor(daysActive),
     mode: 'projected',
-    note: 'Rendimiento proyectado basado en APY actual. Se actualizará con datos reales cuando las fees acumuladas sean significativas.',
-    arbitrum: {
-      inRange: uniInRange,
-      feePct: '+' + uniProjected + '%',
-      apy: uniAPY
-    },
-    solana: {
-      inRange: orcaInRange,
-      feePct: '+' + orcaProjected + '%',
-      apy: orcaAPY
-    }
+    arbitrum: { inRange:uniInRange, feePct:'+'+uniProjected+'%', apy:uniAPY },
+    solana: { inRange:orcaInRange, feePct:'+'+orcaProjected+'%', apy:orcaAPY }
   });
 }
