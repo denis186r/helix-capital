@@ -21,7 +21,12 @@ export default async function handler(req, res) {
 
   try {
     const rawIndex = await kvGet("snapshot:index");
-    const index = Array.isArray(rawIndex) ? rawIndex : (rawIndex ? JSON.parse(rawIndex) : []);
+    let index = [];
+    if (Array.isArray(rawIndex)) {
+      index = rawIndex;
+    } else if (typeof rawIndex === 'string') {
+      index = JSON.parse(rawIndex);
+    }
 
     if (index.length === 0) {
       return res.status(200).json({ days: [], message: "No snapshots yet" });
@@ -31,7 +36,8 @@ export default async function handler(req, res) {
       index.map(async (dateKey) => {
         const raw = await kvGet(`snapshot:${dateKey}`);
         if (!raw) return null;
-        return typeof raw === 'object' ? raw : JSON.parse(raw);
+        if (typeof raw === 'object') return raw;
+        return JSON.parse(raw);
       })
     );
 

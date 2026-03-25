@@ -75,7 +75,12 @@ export default async function handler(req, res) {
 
     // Actualizar índice de fechas
     const rawIndex = await kvGet("snapshot:index");
-    const index = rawIndex ? JSON.parse(rawIndex) : [];
+    let index = [];
+    if (Array.isArray(rawIndex)) {
+      index = rawIndex;
+    } else if (typeof rawIndex === 'string') {
+      index = JSON.parse(rawIndex);
+    }
     if (!index.includes(dayKey)) {
       index.push(dayKey);
       index.sort();
