@@ -310,54 +310,36 @@
 
 <script>
 const START=new Date('2026-03-24');
-const ORCA_POS='EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG';
-const ORCA_NFT='FbDA6crPg4vLKw94ikEHANYMPeUVSPm1SWDgKvYkHRxt';
-const UNI_ID='5387381';
-const UNI_URL='https://gateway.thegraph.com/api/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV';
-const UNI_KEY='0f725f2449c4f6f2604e60343492df1c';
-
 function rp(id){const e=document.getElementById(id);if(e)e.classList.remove('pulse');}
 function set(id,val){const e=document.getElementById(id);if(e){e.textContent=val;rp(id);}}
-function isInRange(cur,lo,hi){return parseInt(cur)>=parseInt(lo)&&parseInt(cur)<=parseInt(hi);}
 
 async function loadUniswap(){
-  const q=`{position(id:"${UNI_ID}"){liquidity token0{symbol decimals}token1{symbol decimals}tickLower{tickIdx}tickUpper{tickIdx}pool{tick feeTier poolDayData(first:7,orderBy:date,orderDirection:desc){feesUSD tvlUSD}}collectedFeesToken0 collectedFeesToken1 depositedToken0 depositedToken1}}`;
   try{
-    const r=await fetch(UNI_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+UNI_KEY},body:JSON.stringify({query:q})});
+    const r=await fetch('/api/uniswap');
+    if(!r.ok)throw new Error('Server error');
     const d=await r.json();
-    const pos=d.data?.position;
-    if(!pos)throw new Error('No position data');
 
     set('s1','● Conectado');document.getElementById('s1').className='pbadge bg';
 
-    const inR=isInRange(pos.pool.tick,pos.tickLower.tickIdx,pos.tickUpper.tickIdx);
     const rtag=document.getElementById('r1tag');
-    if(inR){rtag.textContent='● En rango';rtag.className='tag ta';}
+    if(d.inRange){rtag.textContent='● En rango';rtag.className='tag ta';}
     else{rtag.textContent='● Fuera de rango';rtag.className='tag to';}
     rp('r1tag');
 
-    set('rs1',inR?'● Activa · generando comisiones':'● Fuera de rango · reposicionar');
-    document.getElementById('rs1').className='pfv '+(inR?'ok':'warn');
+    set('rs1',d.inRange?'● Activa · generando comisiones':'● Fuera de rango · reposicionar');
+    document.getElementById('rs1').className='pfv '+(d.inRange?'ok':'warn');
 
-    const ft=(parseInt(pos.pool.feeTier)/10000).toFixed(2)+'%';
-    set('ft1',ft);
+    if(d.feeTier) set('ft1',d.feeTier+'%');
 
-    const days=pos.pool.poolDayData||[];
-    if(days.length>0){
-      const avgF=days.reduce((s,d)=>s+parseFloat(d.feesUSD||0),0)/days.length;
-      const tvl=parseFloat(days[0]?.tvlUSD||0);
-      if(tvl>0){
-        const apy=((avgF/tvl)*365*100).toFixed(1)+'%';
-        set('apy1',apy);set('apy1b',apy);
-      }
+    if(d.apy){
+      set('apy1',d.apy+'%');set('apy1b',d.apy+'%');
     }
 
-    const dep=parseFloat(pos.depositedToken0)||0;
-    const col=parseFloat(pos.collectedFeesToken0)||0;
-    if(dep>0){
-      const pct=((col/dep)*100).toFixed(3)+'%';
-      set('fees1','+'+pct);set('fees1b','+'+pct+' en comisiones');
-      set('totalRet','+'+pct);set('hr1','+'+pct);
+    if(d.feesPct){
+      set('fees1','+'+d.feesPct+'%');
+      set('fees1b','+'+d.feesPct+'% en comisiones');
+      set('totalRet','+'+d.feesPct+'%');
+      set('hr1','+'+d.feesPct+'%');
     } else {
       set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
       set('totalRet','Ver on-chain');set('hr1','Ver on-chain');
@@ -365,8 +347,34 @@ async function loadUniswap(){
 
     set('posStatus','2 activas · datos en vivo');
   }catch(e){
-    set('s1','API limitada');document.getElementById('s1').className='pbadge bn';
+    set('s1','Error');document.getElementById('s1').className='pbadge br';
     fallbackUni();
+  }
+}
+
+async function loadOrca(){
+  try{
+    const r=await fetch('/api/orca');
+    if(!r.ok)throw new Error('Server error');
+    const d=await r.json();
+
+    const label=d.source==='live'?'● Conectado':'● Referencia';
+    set('s2',label);document.getElementById('s2').className='pbadge bg';
+
+    const r2=document.getElementById('r2tag');
+    if(d.inRange){r2.textContent='● En rango';r2.className='tag ta';}
+    else{r2.textContent='● Fuera de rango';r2.className='tag to';}
+    rp('r2tag');
+
+    set('rs2',d.inRange?'● Activa · generando comisiones':'● Fuera de rango · reposicionar');
+    document.getElementById('rs2').className='pfv '+(d.inRange?'ok':'warn');
+
+    if(d.apy){set('apy2',d.apy+'%');set('apy2b',d.apy+'%');}
+    if(d.feesPct){set('fees2','+'+d.feesPct+'%');}
+    else{set('fees2','Ver en Orca →');}
+  }catch(e){
+    set('s2','Error');document.getElementById('s2').className='pbadge br';
+    fallbackOrca();
   }
 }
 
@@ -376,39 +384,17 @@ async function loadLlama(){
     const d=await r.json();
     const pools=d.data||[];
     set('s3','● Conectado');document.getElementById('s3').className='pbadge bg';
-
     if(document.getElementById('apy1').textContent==='—'){
       const p=pools.find(p=>p.chain==='Arbitrum'&&p.project==='uniswap-v3'&&p.apy>0);
-      if(p)set('apy1',p.apy.toFixed(1)+'%');
-      else set('apy1','~60%');
+      set('apy1',p?p.apy.toFixed(1)+'%':'~60%');
       set('apy1b',document.getElementById('apy1').textContent);
     }
-    if(document.getElementById('apy2').textContent==='—'){
-      set('apy2','~24%');set('apy2b','~24%');
-    }
+    if(document.getElementById('apy2').textContent==='—'){set('apy2','~24%');set('apy2b','~24%');}
   }catch(e){
     set('s3','Error');document.getElementById('s3').className='pbadge br';
     if(document.getElementById('apy1').textContent==='—'){set('apy1','~60%');set('apy1b','~60%');}
     if(document.getElementById('apy2').textContent==='—'){set('apy2','~24%');set('apy2b','~24%');}
   }
-}
-
-async function loadOrca(){
-  try{
-    // Orca API endpoint for position
-    const r=await fetch('https://api.mainnet.orca.so/v1/position/EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG');
-    if(r.ok){
-      set('s2','● Conectado');document.getElementById('s2').className='pbadge bg';
-    } else throw new Error();
-  }catch(e){
-    set('s2','API pública');document.getElementById('s2').className='pbadge bn';
-  }
-  // Always show in range for Orca (day 1, price hasn't moved much)
-  const r2=document.getElementById('r2tag');
-  r2.textContent='● En rango';r2.className='tag ta';rp('r2tag');
-  set('rs2','● Activa · generando comisiones');
-  document.getElementById('rs2').className='pfv ok';
-  set('fees2','Ver en Orca →');
 }
 
 function fallbackUni(){
@@ -419,6 +405,15 @@ function fallbackUni(){
   set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
   set('apy1','~60%');set('apy1b','~60%');
   set('ft1','0.30%');set('totalRet','Ver on-chain');set('hr1','Ver on-chain');
+}
+
+function fallbackOrca(){
+  const r=document.getElementById('r2tag');
+  r.textContent='● En rango';r.className='tag ta';rp('r2tag');
+  set('rs2','● Activa · generando comisiones');
+  document.getElementById('rs2').className='pfv ok';
+  set('fees2','Ver en Orca →');
+  set('apy2','~24%');set('apy2b','~24%');
 }
 
 async function loadAll(){
