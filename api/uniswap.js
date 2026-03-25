@@ -10,8 +10,28 @@ export default async function handler(req, res) {
   const URL = 'https://gateway.thegraph.com/api/subgraphs/id/FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX';
 
   const query = `{
-    __type(name: "Position") {
-      fields { name }
+    position(id: "${POSITION_ID}") {
+      id
+      liquidity
+      liquidityUSD
+      tickLower { id }
+      tickUpper { id }
+      pool {
+        id
+        tick
+        totalValueLockedUSD
+        dailySnapshots(first: 7, orderBy: timestamp, orderDirection: desc) {
+          dailyTotalRevenueUSD
+          totalValueLockedUSD
+          timestamp
+        }
+      }
+      cumulativeDepositUSD
+      cumulativeRewardUSD
+      snapshots(first: 1, orderBy: timestamp, orderDirection: desc) {
+        timestamp
+        liquidityUSD
+      }
     }
   }`;
 
@@ -27,7 +47,43 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    return res.status(200).json({ schema: data });
+    if (!data.data?.position) {
+      return res.status(404).json({
+        error: 'Position not found',
+        errors: data.errors || null
+      });
+    }
+
+    const pos = data.data.position;
+
+    // Extract tick values from id (format: poolAddress#tickLower#tickUpper)
+    const tickLowerVal = parseInt(pos.tickLower?.id?.split('#')[1] || '0');
+    const tickUpperVal = parseInt(pos.tickUpper?.id?.split('#')[1] || '0');
+    const currentTick = parseInt(pos.pool?.tick || '0');
+    const inRange = currentTick >= tickLowerVal && currentTick <= tickUpperVal;
+
+    // APY from daily snapshots
+    const snapshots = pos.pool?.dailySnapshots || [];
+    let apy = null;
+    if (snapshots.length > 0) {
+      const avgRevenue = snapshots.reduce((s, d) => s + parseFloat(d.dailyTotalRevenueUSD || 0), 0) / snapshots.length;
+      const tvl = parseFloat(snapshots[0]?.totalValueLockedUSD || 0);
+      if (tvl > 0) apy = ((avgRevenue / tvl) * 365 * 100).toFixed(1);
+    }
+
+    // Fees as % of deposited
+    const deposited = parseFloat(pos.cumulativeDepositUSD || 0);
+    const rewards = parseFloat(pos.cumulativeRewardUSD || 0);
+    const feesPct = deposited > 0 && rewards > 0 ? ((rewards / deposited) * 100).toFixed(4) : null;
+
+    res.status(200).json({
+      inRange,
+      apy,
+      feesPct,
+      feeTier: '0.30',
+      liquidity: pos.liquidity,
+      liquidityUSD: pos.liquidityUSD
+    });
 
     const pos = data.data.position;
     const currentTick = parseInt(pos.pool.tick);
