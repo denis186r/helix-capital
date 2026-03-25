@@ -1,4 +1,4 @@
-const OPEN_TIMESTAMP = 1742817600; // 24 Mar 2026 00:00 UTC
+const OPEN_TIMESTAMP = 1774310400; // 24 Mar 2026 00:00 UTC
 
 function calcFeesPct(apy) {
   const daysActive = Math.max(1, (Date.now() / 1000 - OPEN_TIMESTAMP) / 86400);
