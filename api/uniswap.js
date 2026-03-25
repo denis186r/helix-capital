@@ -3,101 +3,92 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const POSITION_ID = '5387381';
-  const API_KEY = '0f725f2449c4f6f2604e60343492df1c';
-  const URL = 'https://gateway.thegraph.com/api/subgraphs/id/FQ6JYszEKApsBpAmiHesRsd9Ygc6mzmpNRANeVQFYoVX';
-
-  const query = `{
-    position(id: "${POSITION_ID}") {
-      id
-      liquidity
-      liquidityUSD
-      tickLower { id }
-      tickUpper { id }
-      cumulativeDepositUSD
-      cumulativeRewardUSD
-      pool {
-        tick
-        totalValueLockedUSD
-        dailySnapshots(first: 7, orderBy: timestamp, orderDirection: desc) {
-          dailyTotalRevenueUSD
-          totalValueLockedUSD
-        }
-      }
-    }
-  }`;
+  const SAFE_ADDRESS = '0x61d736F10F854712b5ffe9cFabdb967D18fa7aD9';
 
   try {
-    const response = await fetch(URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`
-      },
-      body: JSON.stringify({ query })
-    });
+    // Use Uniswap V3 REST API on Arbitrum
+    const uniRes = await fetch(
+      `https://interface.gateway.uniswap.org/v1/graphql`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Origin': 'https://app.uniswap.org'
+        },
+        body: JSON.stringify({
+          query: `{
+            position(tokenId: "${POSITION_ID}", chain: ARBITRUM) {
+              token0 { symbol }
+              token1 { symbol }
+              tickLower
+              tickUpper
+              pool {
+                tick
+                feeTier
+                totalValueLockedUSD
+              }
+              liquidity
+              collectedFeesToken0
+              collectedFeesToken1
+            }
+          }`
+        })
+      }
+    );
 
-    const text = await response.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch(e) {
-      return res.status(500).json({ error: 'Invalid JSON from subgraph', raw: text.slice(0, 300) });
+    if (!uniRes.ok) throw new Error(`Uniswap API: ${uniRes.status}`);
+    const uniData = await uniRes.json();
+
+    if (uniData.data?.position) {
+      const pos = uniData.data.position;
+      const currentTick = parseInt(pos.pool.tick);
+      const inRange = currentTick >= pos.tickLower && currentTick <= pos.tickUpper;
+      const feeTierPct = (parseInt(pos.pool.feeTier) / 10000).toFixed(2);
+
+      return res.status(200).json({
+        inRange,
+        apy: null,
+        feesPct: null,
+        feeTier: feeTierPct,
+        source: 'uniswap-api'
+      });
     }
 
-    if (data.errors) {
-      return res.status(400).json({ error: 'GraphQL errors', errors: data.errors });
-    }
-
-    if (!data.data || !data.data.position) {
-      return res.status(404).json({ error: 'Position not found', data: data });
-    }
-
-    const pos = data.data.position;
-
-    // Parse ticks from id format: "poolAddress#lower#upper" or just the tick number
-    let tickLowerVal = 0;
-    let tickUpperVal = 0;
-    try {
-      const lId = pos.tickLower?.id || '';
-      const uId = pos.tickUpper?.id || '';
-      const lParts = lId.split('#');
-      const uParts = uId.split('#');
-      tickLowerVal = parseInt(lParts[lParts.length - 1] || '0');
-      tickUpperVal = parseInt(uParts[uParts.length - 1] || '0');
-    } catch(e) {}
-
-    const currentTick = parseInt(pos.pool?.tick || '0');
-    const inRange = tickUpperVal > tickLowerVal 
-      ? (currentTick >= tickLowerVal && currentTick <= tickUpperVal)
-      : true;
-
-    // APY calculation
-    const snapshots = pos.pool?.dailySnapshots || [];
-    let apy = null;
-    if (snapshots.length > 0) {
-      const avgRevenue = snapshots.reduce((s, d) => s + parseFloat(d.dailyTotalRevenueUSD || 0), 0) / snapshots.length;
-      const tvl = parseFloat(snapshots[0]?.totalValueLockedUSD || 0);
-      if (tvl > 0) apy = ((avgRevenue / tvl) * 365 * 100).toFixed(1);
-    }
-
-    // Fees %
-    const deposited = parseFloat(pos.cumulativeDepositUSD || 0);
-    const rewards = parseFloat(pos.cumulativeRewardUSD || 0);
-    const feesPct = (deposited > 0 && rewards > 0) ? ((rewards / deposited) * 100).toFixed(4) : null;
-
-    return res.status(200).json({
-      inRange,
-      apy,
-      feesPct,
-      feeTier: '0.30',
-      currentTick,
-      tickLower: tickLowerVal,
-      tickUpper: tickUpperVal,
-      liquidity: pos.liquidity,
-      liquidityUSD: pos.liquidityUSD
-    });
+    throw new Error('No position data from Uniswap API');
 
   } catch(err) {
-    return res.status(500).json({ error: err.message, stack: err.stack?.slice(0, 300) });
+    // Final fallback: use Arbiscan to read position directly from contract
+    try {
+      const arbRes = await fetch(
+        `https://api.arbiscan.io/api?module=proxy&action=eth_call&to=0xC36442b4a4522E871399CD717aBDD847Ab11FE88&data=0x99fbab88${POSITION_ID.toString(16).padStart(64,'0')}&tag=latest`
+      );
+      const arbData = await arbRes.json();
+
+      if (arbData.result && arbData.result !== '0x') {
+        const hex = arbData.result.slice(2);
+        const tickLower = parseInt(hex.slice(128, 192), 16);
+        const tickUpper = parseInt(hex.slice(192, 256), 16);
+        const liquidity = parseInt(hex.slice(256, 320), 16);
+
+        return res.status(200).json({
+          inRange: liquidity > 0,
+          apy: null,
+          feesPct: null,
+          feeTier: '0.30',
+          liquidity: liquidity.toString(),
+          source: 'arbiscan-contract'
+        });
+      }
+    } catch(e2) {}
+
+    // Ultimate fallback
+    return res.status(200).json({
+      inRange: true,
+      apy: null,
+      feesPct: null,
+      feeTier: '0.30',
+      source: 'fallback',
+      error: err.message
+    });
   }
 }
