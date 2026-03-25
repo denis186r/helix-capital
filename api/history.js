@@ -25,7 +25,8 @@ export default async function handler(req, res) {
     if (Array.isArray(rawIndex)) {
       index = rawIndex;
     } else if (typeof rawIndex === 'string') {
-      index = JSON.parse(rawIndex);
+      const parsed = JSON.parse(rawIndex);
+      index = Array.isArray(parsed) ? parsed : JSON.parse(parsed);
     }
 
     if (index.length === 0) {
@@ -37,7 +38,8 @@ export default async function handler(req, res) {
         const raw = await kvGet(`snapshot:${dateKey}`);
         if (!raw) return null;
         if (typeof raw === 'object') return raw;
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        return typeof parsed === 'string' ? JSON.parse(parsed) : parsed;
       })
     );
 
