@@ -1,8 +1,5 @@
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const POSITION_ID = '5387381';
@@ -16,21 +13,15 @@ export default async function handler(req, res) {
       liquidityUSD
       tickLower { id }
       tickUpper { id }
+      cumulativeDepositUSD
+      cumulativeRewardUSD
       pool {
-        id
         tick
         totalValueLockedUSD
         dailySnapshots(first: 7, orderBy: timestamp, orderDirection: desc) {
           dailyTotalRevenueUSD
           totalValueLockedUSD
-          timestamp
         }
-      }
-      cumulativeDepositUSD
-      cumulativeRewardUSD
-      snapshots(first: 1, orderBy: timestamp, orderDirection: desc) {
-        timestamp
-        liquidityUSD
       }
     }
   }`;
@@ -45,24 +36,42 @@ export default async function handler(req, res) {
       body: JSON.stringify({ query })
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      return res.status(500).json({ error: 'Invalid JSON from subgraph', raw: text.slice(0, 300) });
+    }
 
-    if (!data.data?.position) {
-      return res.status(404).json({
-        error: 'Position not found',
-        errors: data.errors || null
-      });
+    if (data.errors) {
+      return res.status(400).json({ error: 'GraphQL errors', errors: data.errors });
+    }
+
+    if (!data.data || !data.data.position) {
+      return res.status(404).json({ error: 'Position not found', data: data });
     }
 
     const pos = data.data.position;
 
-    // Extract tick values from id (format: poolAddress#tickLower#tickUpper)
-    const tickLowerVal = parseInt(pos.tickLower?.id?.split('#')[1] || '0');
-    const tickUpperVal = parseInt(pos.tickUpper?.id?.split('#')[1] || '0');
-    const currentTick = parseInt(pos.pool?.tick || '0');
-    const inRange = currentTick >= tickLowerVal && currentTick <= tickUpperVal;
+    // Parse ticks from id format: "poolAddress#lower#upper" or just the tick number
+    let tickLowerVal = 0;
+    let tickUpperVal = 0;
+    try {
+      const lId = pos.tickLower?.id || '';
+      const uId = pos.tickUpper?.id || '';
+      const lParts = lId.split('#');
+      const uParts = uId.split('#');
+      tickLowerVal = parseInt(lParts[lParts.length - 1] || '0');
+      tickUpperVal = parseInt(uParts[uParts.length - 1] || '0');
+    } catch(e) {}
 
-    // APY from daily snapshots
+    const currentTick = parseInt(pos.pool?.tick || '0');
+    const inRange = tickUpperVal > tickLowerVal 
+      ? (currentTick >= tickLowerVal && currentTick <= tickUpperVal)
+      : true;
+
+    // APY calculation
     const snapshots = pos.pool?.dailySnapshots || [];
     let apy = null;
     if (snapshots.length > 0) {
@@ -71,48 +80,24 @@ export default async function handler(req, res) {
       if (tvl > 0) apy = ((avgRevenue / tvl) * 365 * 100).toFixed(1);
     }
 
-    // Fees as % of deposited
+    // Fees %
     const deposited = parseFloat(pos.cumulativeDepositUSD || 0);
     const rewards = parseFloat(pos.cumulativeRewardUSD || 0);
-    const feesPct = deposited > 0 && rewards > 0 ? ((rewards / deposited) * 100).toFixed(4) : null;
+    const feesPct = (deposited > 0 && rewards > 0) ? ((rewards / deposited) * 100).toFixed(4) : null;
 
-    res.status(200).json({
+    return res.status(200).json({
       inRange,
       apy,
       feesPct,
       feeTier: '0.30',
+      currentTick,
+      tickLower: tickLowerVal,
+      tickUpper: tickUpperVal,
       liquidity: pos.liquidity,
       liquidityUSD: pos.liquidityUSD
     });
 
-    const pos = data.data.position;
-    const currentTick = parseInt(pos.pool.tick);
-    const tickLower = parseInt(pos.tickLower.tickIndex);
-    const tickUpper = parseInt(pos.tickUpper.tickIndex);
-    const inRange = currentTick >= tickLower && currentTick <= tickUpper;
-
-    const snapshots = pos.pool.dailySnapshots || [];
-    let apy = null;
-    if (snapshots.length > 0) {
-      const avgRevenue = snapshots.reduce((s, d) => s + parseFloat(d.dailyTotalRevenueUSD || 0), 0) / snapshots.length;
-      const tvl = parseFloat(snapshots[0]?.totalValueLockedUSD || 0);
-      if (tvl > 0) apy = ((avgRevenue / tvl) * 365 * 100).toFixed(1);
-    }
-
-    const deposited = pos.depositedTokenAmounts || [];
-    const rewards = parseFloat(pos.cumulativeRewardUSD || 0);
-    const tvl = parseFloat(pos.pool.totalValueLockedUSD || 0);
-    const feesPct = tvl > 0 && rewards > 0 ? ((rewards / tvl) * 100).toFixed(4) : null;
-
-    res.status(200).json({
-      inRange,
-      apy,
-      feesPct,
-      feeTier: '0.30',
-      liquidity: pos.liquidity
-    });
-
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch(err) {
+    return res.status(500).json({ error: err.message, stack: err.stack?.slice(0, 300) });
   }
 }
