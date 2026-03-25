@@ -11,25 +11,24 @@ export default async function handler(req, res) {
 
   const query = `{
     position(id: "${POSITION_ID}") {
+      id
       liquidity
-      token0 { symbol decimals }
-      token1 { symbol decimals }
-      tickLower { tickIdx }
-      tickUpper { tickIdx }
+      hashOpened
+      tickLower { tickIndex }
+      tickUpper { tickIndex }
       pool {
         tick
-        feeTier
-        token0Price
-        poolDayData(first: 7, orderBy: date, orderDirection: desc) {
-          feesUSD
-          tvlUSD
-          date
+        activeLiquidity
+        totalValueLockedUSD
+        dailySnapshots(first: 7, orderBy: timestamp, orderDirection: desc) {
+          dailyTotalRevenueUSD
+          totalValueLockedUSD
+          timestamp
         }
       }
-      collectedFeesToken0
-      collectedFeesToken1
-      depositedToken0
-      depositedToken1
+      withdrawnTokenAmounts
+      depositedTokenAmounts
+      cumulativeRewardUSD
     }
   }`;
 
@@ -59,31 +58,28 @@ export default async function handler(req, res) {
 
     const pos = data.data.position;
     const currentTick = parseInt(pos.pool.tick);
-    const tickLower = parseInt(pos.tickLower.tickIdx);
-    const tickUpper = parseInt(pos.tickUpper.tickIdx);
+    const tickLower = parseInt(pos.tickLower.tickIndex);
+    const tickUpper = parseInt(pos.tickUpper.tickIndex);
     const inRange = currentTick >= tickLower && currentTick <= tickUpper;
 
-    const dayData = pos.pool.poolDayData || [];
+    const snapshots = pos.pool.dailySnapshots || [];
     let apy = null;
-    if (dayData.length > 0) {
-      const avgFees = dayData.reduce((s, d) => s + parseFloat(d.feesUSD || 0), 0) / dayData.length;
-      const tvl = parseFloat(dayData[0]?.tvlUSD || 0);
-      if (tvl > 0) apy = ((avgFees / tvl) * 365 * 100).toFixed(1);
+    if (snapshots.length > 0) {
+      const avgRevenue = snapshots.reduce((s, d) => s + parseFloat(d.dailyTotalRevenueUSD || 0), 0) / snapshots.length;
+      const tvl = parseFloat(snapshots[0]?.totalValueLockedUSD || 0);
+      if (tvl > 0) apy = ((avgRevenue / tvl) * 365 * 100).toFixed(1);
     }
 
-    const dep0 = parseFloat(pos.depositedToken0) || 0;
-    const col0 = parseFloat(pos.collectedFeesToken0) || 0;
-    const feesPct = dep0 > 0 ? ((col0 / dep0) * 100).toFixed(4) : null;
-
-    const feeTier = (parseInt(pos.pool.feeTier) / 10000).toFixed(2);
+    const deposited = pos.depositedTokenAmounts || [];
+    const rewards = parseFloat(pos.cumulativeRewardUSD || 0);
+    const tvl = parseFloat(pos.pool.totalValueLockedUSD || 0);
+    const feesPct = tvl > 0 && rewards > 0 ? ((rewards / tvl) * 100).toFixed(4) : null;
 
     res.status(200).json({
       inRange,
       apy,
       feesPct,
-      feeTier,
-      token0: pos.token0.symbol,
-      token1: pos.token1.symbol,
+      feeTier: '0.30',
       liquidity: pos.liquidity
     });
 
