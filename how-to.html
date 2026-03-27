@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 144 60'%3E%3Crect width='144' height='60' fill='%230A0A0A' rx='8'/%3E%3Cpath d='M 2 30 C 16 14,36 14,50 30 C 64 46,84 46,98 30 C 112 14,132 14,142 30' fill='none' stroke='%23C9A84C' stroke-width='7' stroke-linecap='round'/%3E%3Cpath d='M 2 30 C 16 46,36 46,50 30 C 64 14,84 14,98 30 C 112 46,132 46,142 30' fill='none' stroke='%231F6FEB' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='2' cy='30' r='6' fill='%23C9A84C'/%3E%3Ccircle cx='142' cy='30' r='6' fill='%231F6FEB'/%3E%3C/svg%3E"/>
+<title>Cómo Participar — Helix Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0A0A0A;--bg-card:#111111;--bg-card2:#161616;
+  --border:rgba(201,168,76,0.15);--border-faint:rgba(201,168,76,0.08);
+  --text:#E6EDF3;--text-mid:#8B949E;--text-dim:#484F58;
+  --gold:#C9A84C;--gold-dim:#7A6230;--gold-glow:rgba(201,168,76,0.12);
+  --green:#3FB950;--green-dim:rgba(63,185,80,0.1);
+  --blue:#1F6FEB;--blue-light:#58A6FF;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:400;line-height:1.6;font-size:14px;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-faint);padding:0.75rem 2rem;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;flex-direction:column;align-items:flex-start;gap:0.2rem;text-decoration:none;}
+.nav-links{display:flex;align-items:center;gap:1.5rem;}
+.nav-links a{font-size:0.75rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-mid);text-decoration:none;transition:color 0.2s;}
+.nav-links a:hover{color:var(--gold);}
+.nav-links a.active{color:var(--gold);}
+.nav-cta{background:var(--gold);color:#000;padding:0.4rem 1rem;font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:2px;transition:opacity 0.2s;}
+.nav-cta:hover{opacity:0.85;}
+
+/* HERO */
+.hero{padding:8rem 2rem 4rem;max-width:900px;margin:0 auto;text-align:center;}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:0.75rem;}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:40px;height:1px;background:var(--gold-dim);}
+.hero h1{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:600;line-height:1.15;letter-spacing:-0.02em;margin-bottom:1.5rem;}
+.hero h1 span{color:var(--gold);}
+.hero-sub{font-size:1rem;color:var(--text-mid);max-width:560px;margin:0 auto 2.5rem;line-height:1.8;}
+.hero-stats{display:flex;align-items:center;justify-content:center;gap:2.5rem;padding:1.5rem 2rem;background:var(--gold-glow);border:1px solid var(--border);border-radius:4px;display:inline-flex;}
+.hstat{text-align:center;}
+.hstat-val{font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:500;color:var(--gold);line-height:1;}
+.hstat-lbl{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-top:0.3rem;}
+.hstat-sep{width:1px;height:36px;background:var(--border);}
+
+/* SECTIONS */
+.page{max-width:860px;margin:0 auto;padding:0 2rem 6rem;}
+.section{margin-bottom:4rem;}
+.section-label{font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:1.25rem;display:flex;align-items:center;gap:0.6rem;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border-faint);}
+.section h2{font-size:1.5rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.section p{color:var(--text-mid);line-height:1.8;margin-bottom:1rem;}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:1px;background:var(--border-faint);border:1px solid var(--border-faint);}
+.step{background:var(--bg-card);padding:1.5rem 1.75rem;display:grid;grid-template-columns:3rem 1fr;gap:1.25rem;align-items:flex-start;transition:background 0.2s;}
+.step:hover{background:var(--bg-card2);}
+.step-num{font-family:'DM Mono',monospace;font-size:1.75rem;font-weight:300;color:var(--gold-dim);line-height:1;padding-top:0.1rem;}
+.step-content h3{font-size:0.9rem;font-weight:600;margin-bottom:0.4rem;color:var(--text);}
+.step-content p{font-size:0.82rem;color:var(--text-mid);line-height:1.7;margin:0;}
+.step-content .step-note{font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--gold);margin-top:0.6rem;padding:0.4rem 0.75rem;background:var(--gold-glow);border-left:2px solid var(--gold);display:inline-block;}
+
+/* FEE CARD */
+.fee-card{background:var(--bg-card);border:1px solid var(--border);padding:2rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;}
+.fee-main{border-right:1px solid var(--border-faint);padding-right:2rem;}
+.fee-pct{font-family:'DM Mono',monospace;font-size:4rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:0.5rem;}
+.fee-label{font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-mid);}
+.fee-desc{font-size:0.82rem;color:var(--text-dim);margin-top:0.75rem;line-height:1.7;}
+.fee-details{display:flex;flex-direction:column;gap:1rem;}
+.fee-row{display:flex;flex-direction:column;gap:0.2rem;}
+.fee-row-label{font-size:0.6rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);}
+.fee-row-val{font-family:'DM Mono',monospace;font-size:0.85rem;color:var(--text);}
+.fee-row-val.green{color:var(--green);}
+.fee-row-val.gold{color:var(--gold);}
+
+/* TRANSPARENCY */
+.transparency-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-faint);border:1px solid var(--border-faint);}
+.tcard{background:var(--bg-card);padding:1.25rem 1.5rem;}
+.tcard-icon{font-size:1.25rem;margin-bottom:0.75rem;}
+.tcard h4{font-size:0.82rem;font-weight:600;margin-bottom:0.4rem;}
+.tcard p{font-size:0.78rem;color:var(--text-mid);line-height:1.7;}
+
+/* CTA */
+.cta-block{background:var(--bg-card);border:1px solid var(--border);padding:3rem 2.5rem;text-align:center;}
+.cta-block h2{font-size:1.75rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:0.75rem;}
+.cta-block h2 span{color:var(--gold);}
+.cta-block p{color:var(--text-mid);margin-bottom:2rem;font-size:0.9rem;line-height:1.8;}
+.cta-email{display:inline-flex;align-items:center;gap:0.75rem;background:var(--gold);color:#000;padding:0.85rem 2rem;font-size:0.82rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;border-radius:3px;transition:opacity 0.2s;margin-bottom:1rem;}
+.cta-email:hover{opacity:0.88;}
+.cta-email svg{width:16px;height:16px;}
+.cta-sub{font-size:0.7rem;color:var(--text-dim);font-family:'DM Mono',monospace;}
+.cta-sub a{color:var(--gold-dim);text-decoration:none;}
+
+/* FAQ */
+.faq{display:flex;flex-direction:column;gap:1px;background:var(--border-faint);border:1px solid var(--border-faint);}
+.faq-item{background:var(--bg-card);}
+.faq-q{padding:1rem 1.5rem;font-size:0.85rem;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;}
+.faq-q:hover{background:var(--bg-card2);}
+.faq-arrow{font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--gold-dim);transition:transform 0.2s;}
+.faq-a{padding:0 1.5rem;font-size:0.82rem;color:var(--text-mid);line-height:1.8;max-height:0;overflow:hidden;transition:max-height 0.3s ease, padding 0.3s ease;}
+.faq-item.open .faq-a{max-height:200px;padding:0 1.5rem 1rem;}
+.faq-item.open .faq-arrow{transform:rotate(180deg);}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border-faint);padding:1.5rem 2rem;display:flex;justify-content:space-between;align-items:center;background:var(--bg-card);}
+.ft-links{display:flex;gap:1.5rem;}
+.ft-links a{font-size:0.7rem;color:var(--text-dim);text-decoration:none;letter-spacing:0.06em;}
+.ft-links a:hover{color:var(--gold);}
+.ft-copy{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--text-dim);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fade-up{opacity:0;animation:fadeUp 0.6s ease forwards;}
+.delay-1{animation-delay:0.1s;}
+.delay-2{animation-delay:0.2s;}
+.delay-3{animation-delay:0.3s;}
+.delay-4{animation-delay:0.4s;}
+
+@media(max-width:640px){
+  .hero-stats{flex-direction:column;gap:1.25rem;}
+  .hstat-sep{width:80px;height:1px;}
+  .fee-card{grid-template-columns:1fr;}
+  .fee-main{border-right:none;border-bottom:1px solid var(--border-faint);padding-right:0;padding-bottom:1.5rem;}
+  .transparency-grid{grid-template-columns:1fr;}
+  .step{grid-template-columns:2rem 1fr;gap:1rem;}
+  footer{flex-direction:column;gap:1rem;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg width="38" height="16" viewBox="0 0 144 60" xmlns="http://www.w3.org/2000/svg">
+      <path d="M 2 30 C 16 14,36 14,50 30 C 64 46,84 46,98 30 C 112 14,132 14,142 30" fill="none" stroke="#C9A84C" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 2 30 C 16 46,36 46,50 30 C 64 14,84 14,98 30 C 112 46,132 46,142 30" fill="none" stroke="#1F6FEB" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="2" cy="30" r="5" fill="#C9A84C"/><circle cx="142" cy="30" r="5" fill="#1F6FEB"/>
+    </svg>
+    <span style="font-size:0.68rem;font-weight:400;letter-spacing:0.18em;color:#E8C97A;">HELIX <span style="color:#7A6230;font-weight:300;">CAPITAL</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="academy.html">Academia</a>
+    <a href="how-to.html" class="active">Participar</a>
+  </div>
+  <a href="mailto:info@helixcapital.fund" class="nav-cta">Contactar →</a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow fade-up">Cómo participar</div>
+  <h1 class="fade-up delay-1">Tu capital trabajando en <span>DeFi de alto rendimiento</span></h1>
+  <p class="hero-sub fade-up delay-2">Acceso a estrategias de liquidez concentrada en Arbitrum y Solana, gestionadas con wallets multifirma verificables on-chain. Sin intermediarios. Sin letra pequeña.</p>
+  <div class="hero-stats fade-up delay-3">
+    <div class="hstat">
+      <div class="hstat-val" id="apyVal">~26%</div>
+      <div class="hstat-lbl">APY ponderado</div>
+    </div>
+    <div class="hstat-sep"></div>
+    <div class="hstat">
+      <div class="hstat-val">1.000€</div>
+      <div class="hstat-lbl">Mínimo de entrada</div>
+    </div>
+    <div class="hstat-sep"></div>
+    <div class="hstat">
+      <div class="hstat-val">20%</div>
+      <div class="hstat-lbl">Performance fee</div>
+    </div>
+    <div class="hstat-sep"></div>
+    <div class="hstat">
+      <div class="hstat-val">0%</div>
+      <div class="hstat-lbl">Comisión de gestión</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- PASOS -->
+  <div class="section fade-up">
+    <div class="section-label">01 — Proceso</div>
+    <h2>Cuatro pasos para empezar</h2>
+    <p>El proceso es simple y transparente. Desde el primer contacto hasta que tu capital empieza a generar rendimiento.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h3>Contáctanos por email</h3>
+          <p>Escríbenos a <strong style="color:var(--gold)">info@helixcapital.fund</strong> indicando el capital que deseas gestionar. Te respondemos en menos de 24 horas con toda la información.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h3>Llamada de introducción</h3>
+          <p>Una llamada de 20-30 minutos para explicarte la estrategia, resolver dudas y presentarte el historial de posiciones verificable on-chain.</p>
+          <div class="step-note">Sin compromiso · Sin presión</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h3>Acuerdo y transferencia</h3>
+          <p>Formalizamos el acuerdo con los términos claros: capital, plazo estimado y estructura de fees. La transferencia se realiza directamente en cripto (USDC, ETH o equivalente).</p>
+          <div class="step-note">Mínimo 1.000€ · Capital en cripto</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h3>Seguimiento en tiempo real</h3>
+          <p>Desde el primer día tienes acceso al dashboard en vivo con datos directamente de blockchain. Tus posiciones son verificables on-chain en cualquier momento.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEES -->
+  <div class="section fade-up">
+    <div class="section-label">02 — Estructura de fees</div>
+    <h2>Solo ganamos si tú ganas</h2>
+    <div class="fee-card">
+      <div class="fee-main">
+        <div class="fee-pct">20%</div>
+        <div class="fee-label">Performance fee</div>
+        <p class="fee-desc">Cobramos el 20% únicamente sobre los beneficios generados. Si no hay beneficio, no hay comisión. Nuestros intereses están completamente alineados con los tuyos.</p>
+      </div>
+      <div class="fee-details">
+        <div class="fee-row">
+          <div class="fee-row-label">Comisión de gestión</div>
+          <div class="fee-row-val green">0% — Sin coste fijo</div>
+        </div>
+        <div class="fee-row">
+          <div class="fee-row-label">Performance fee</div>
+          <div class="fee-row-val gold">20% sobre beneficios</div>
+        </div>
+        <div class="fee-row">
+          <div class="fee-row-label">Capital mínimo</div>
+          <div class="fee-row-val">1.000€</div>
+        </div>
+        <div class="fee-row">
+          <div class="fee-row-label">Liquidez</div>
+          <div class="fee-row-val">A convenir · sin penalización</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSPARENCIA -->
+  <div class="section fade-up">
+    <div class="section-label">03 — Transparencia</div>
+    <h2>Verificable en todo momento</h2>
+    <p>A diferencia de los fondos tradicionales, cada posición es verificable directamente en la blockchain. Sin intermediarios que custodien tu capital.</p>
+    <div class="transparency-grid">
+      <div class="tcard">
+        <div class="tcard-icon">⛓</div>
+        <h4>Datos on-chain</h4>
+        <p>Todas las posiciones existen en la blockchain y pueden ser verificadas por cualquier persona en cualquier momento, sin depender de nosotros.</p>
+      </div>
+      <div class="tcard">
+        <div class="tcard-icon">🔐</div>
+        <h4>Wallets multifirma</h4>
+        <p>El capital se gestiona con wallets 2/3 multifirma. Ninguna transacción puede ejecutarse sin múltiples firmas independientes.</p>
+      </div>
+      <div class="tcard">
+        <div class="tcard-icon">📊</div>
+        <h4>Dashboard en vivo</h4>
+        <p>Acceso completo al dashboard con rendimiento actualizado cada 5 minutos, directamente desde los RPCs de Arbitrum y Solana.</p>
+      </div>
+      <div class="tcard">
+        <div class="tcard-icon">📅</div>
+        <h4>Track record real</h4>
+        <p>Historial de rendimiento desde el 24/03/2026, con cada dato verificable en cadena. Sin resultados simulados ni backtesting.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-block fade-up">
+    <h2>¿Listo para empezar?</h2>
+    <p>Escríbenos y en menos de 24 horas te explicamos cómo funciona todo en detalle. Sin compromisos.</p>
+    <a href="mailto:info@helixcapital.fund?subject=Quiero%20participar%20en%20Helix%20Capital" class="cta-email">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+      info@helixcapital.fund
+    </a>
+    <br/>
+    <span class="cta-sub">También puedes consultar el <a href="dashboard.html">dashboard en vivo →</a></span>
+  </div>
+
+  <!-- FAQ -->
+  <div class="section fade-up" style="margin-top:3rem;">
+    <div class="section-label">04 — Preguntas frecuentes</div>
+    <h2>Dudas habituales</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <div class="faq-q">¿Qué estrategia usáis exactamente? <span class="faq-arrow">↓</span></div>
+        <div class="faq-a">Liquidez concentrada en pools ETH/wBTC (Uniswap V3, Arbitrum) y VCHF/USDC (Orca Whirlpools, Solana). Posicionamos liquidez en rangos estrechos para capturar una proporción mayor de las comisiones del pool.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Cuál es el riesgo principal? <span class="faq-arrow">↓</span></div>
+        <div class="faq-a">El riesgo principal es la impermanent loss si los precios se salen del rango de la posición. Cuando esto ocurre, la posición deja de generar comisiones y reposicionamos. También existe riesgo de smart contract inherente a cualquier protocolo DeFi.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Cuándo puedo retirar mi capital? <span class="faq-arrow">↓</span></div>
+        <div class="faq-a">La liquidez puede retirarse en cualquier momento. Lo acordamos al inicio del contrato sin penalización por salida anticipada. El tiempo de procesamiento habitual es de 24-48 horas.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿El rendimiento del 26% está garantizado? <span class="faq-arrow">↓</span></div>
+        <div class="faq-a">No. El 26% es el APY ponderado actual basado en rendimiento real de las posiciones activas. Los rendimientos futuros dependen de la actividad del mercado y pueden variar. Los rendimientos históricos no garantizan resultados futuros.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿En qué moneda invierto? <span class="faq-arrow">↓</span></div>
+        <div class="faq-a">El capital se gestiona en criptomonedas: USDC, ETH o equivalente. Lo acordamos al inicio según tu situación. El rendimiento se calcula y se reporta en términos porcentuales.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="ft-links">
+    <a href="index.html">Inicio</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="whitepaper.html">Whitepaper</a>
+    <a href="academy.html">Academia</a>
+  </div>
+  <div class="ft-copy">Helix Capital · Track record desde 24/03/2026</div>
+</footer>
+
+<script>
+// FAQ toggle
+document.querySelectorAll('.faq-q').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  });
+});
+
+// Load live APY from dashboard API
+(async () => {
+  try {
+    const r = await fetch('/api/history');
+    const d = await r.json();
+    const last = d.days?.[d.days.length - 1];
+    if (last?.apy?.weighted) {
+      document.getElementById('apyVal').textContent = last.apy.weighted + '%';
+    }
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
