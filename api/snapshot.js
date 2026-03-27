@@ -79,7 +79,8 @@ export default async function handler(req, res) {
     if (Array.isArray(rawIndex)) {
       index = rawIndex;
     } else if (typeof rawIndex === 'string') {
-      index = JSON.parse(rawIndex);
+      const p1 = JSON.parse(rawIndex);
+      index = Array.isArray(p1) ? p1 : JSON.parse(p1);
     }
     if (!index.includes(dayKey)) {
       index.push(dayKey);
