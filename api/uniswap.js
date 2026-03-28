@@ -1,3 +1,10 @@
+const OPEN_TIMESTAMP = 1774310400; // 24 Mar 2026 00:00 UTC
+
+function calcFeesPct(apy) {
+  const daysActive = Math.max(1, (Date.now() / 1000 - OPEN_TIMESTAMP) / 86400);
+  return ((parseFloat(apy) * daysActive) / 365).toFixed(4);
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -72,10 +79,13 @@ export default async function handler(req, res) {
       }
     } catch(e) {}
 
+    // APY: 33% hardcoded (Revert Finance, posición concentrada) si en rango, 0 si fuera
+    const apyFinal = inRange ? (apy ?? '33') : '0.0';
+
     return res.status(200).json({
       inRange,
-      apy,
-      feesPct: null,
+      apy: apyFinal,
+      feesPct: inRange ? calcFeesPct(apy ?? '33') : '0.0000',
       feeTier: (fee / 10000).toFixed(2),
       tickLower, tickUpper, currentTick,
       liquidity: liquidity.toString(),

@@ -116,7 +116,9 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      inRange, apy, feesPct: calcFeesPct(apy),
+      inRange,
+      apy: inRange ? apy : '0.0',
+      feesPct: inRange ? calcFeesPct(apy) : '0.0000',
       tickLower, tickUpper, currentTick,
       tvlUSD: tvlUSD.toFixed(0),
       poolAddress: poolPubkey,
