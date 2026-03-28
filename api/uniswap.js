@@ -85,7 +85,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       inRange,
       apy: apyFinal,
-      feesPct: inRange ? calcFeesPct(apy ?? '33') : '0.0000',
+      feesPct: calcFeesPct(inRange ? (apy ?? '33') : '0'),
       feeTier: (fee / 10000).toFixed(2),
       tickLower, tickUpper, currentTick,
       liquidity: liquidity.toString(),
