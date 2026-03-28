@@ -1,16 +1,17 @@
-const OPEN_TIMESTAMP = 1774310400; // 24 Mar 2026 00:00 UTC
+const OPEN_TIMESTAMP = 1774675800; // 28 Mar 2026 07:30 España
+const FEES_CARRYOVER = 0.2082; // % acumulado posición anterior (EwbJmn5y...)
 
 function calcFeesPct(apy) {
   const daysActive = Math.max(1, (Date.now() / 1000 - OPEN_TIMESTAMP) / 86400);
-  const pct = (parseFloat(apy) * daysActive) / 365;
-  return pct.toFixed(4);
+  const accumulated = (parseFloat(apy) * daysActive) / 365;
+  return (FEES_CARRYOVER + accumulated).toFixed(4);
 }
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const POSITION_ADDRESS = 'EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG';
+  const POSITION_ADDRESS = '2Kxm8V752pEpbDeDrUbRbWz7HhWUghDT4DztcySd7zE9';
   const HELIUS_KEY = '56f4b0e7-f504-4783-84cc-8ac64be0b054';
   const HELIUS_RPC = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_KEY}`;
 
