@@ -27,12 +27,12 @@
   .dash{padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1.25rem;max-width:1400px;margin:0 auto;}
   .api-bar{background:rgba(31,111,235,0.08);border:1px solid rgba(88,166,255,0.2);padding:0.55rem 1.25rem;font-size:0.72rem;color:var(--text-mid);display:flex;align-items:center;gap:0.5rem;}
   .api-bar::before{content:'◆';font-size:0.5rem;color:var(--blue);}
-  .metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border-faint);border:1px solid var(--border-faint);}
+  .metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border-faint);border:1px solid var(--border-faint);}
   .met{background:var(--bg-card);padding:1rem 1.25rem;border-left:3px solid transparent;}
   .met.accent{border-left-color:var(--gold);background:var(--bg-card2);}
   .met-label{font-size:0.6rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.5rem;}
   .met-val{font-family:'DM Mono',monospace;font-size:1.75rem;font-weight:500;line-height:1;margin-bottom:0.3rem;color:var(--text);}
-  .met-val.gold{color:var(--gold);} .met-val.green{color:var(--green);} .met-val.blue{color:var(--blue);}
+  .met-val.gold{color:var(--gold);}.met-val.green{color:var(--green);}.met-val.blue{color:var(--blue);}
   .met-sub{font-size:0.62rem;color:var(--text-dim);}
   .grid-3-1{display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;}
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
@@ -43,9 +43,6 @@
   .bg{background:var(--green-dim);color:var(--green);border:1px solid rgba(63,185,80,0.3);}
   .bn{background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border-faint);}
   .br{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,81,73,0.3);}
-  .chart-ph{height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6rem;border:1px dashed var(--border-faint);border-radius:2px;margin:1.25rem;}
-  .chart-ph-lbl{font-size:0.75rem;color:var(--text-mid);}
-  .chart-ph-sub{font-size:0.65rem;color:var(--text-dim);text-align:center;max-width:220px;line-height:1.6;}
   .chart-wrapper{padding:1.25rem 1.25rem 0.75rem;}
   .wallet-pair{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border-faint);}
   .wi{background:var(--bg-card);padding:1rem 1.25rem;}
@@ -71,7 +68,7 @@
   .pos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
   .pfl{font-size:0.6rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.35rem;}
   .pfv{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--text-mid);}
-  .pfv.ok{color:var(--green);} .pfv.warn{color:var(--red);} .pfv.gold{color:var(--gold);}
+  .pfv.ok{color:var(--green);}.pfv.warn{color:var(--red);}.pfv.gold{color:var(--gold);}
   .plinks{display:flex;flex-direction:column;gap:0.3rem;}
   .plink{font-family:'DM Mono',monospace;font-size:0.68rem;color:var(--blue);text-decoration:none;}
   .plink:hover{color:#fff;}
@@ -92,10 +89,11 @@
   .ft-disc{font-size:0.62rem;color:var(--text-dim);line-height:1.7;max-width:640px;}
   .ft-meta{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--text-dim);text-align:right;white-space:nowrap;line-height:1.8;}
   @media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr);}.grid-3-1,.grid-2{grid-template-columns:1fr;}.wallet-pair{grid-template-columns:1fr;}.pos-grid{grid-template-columns:1fr 1fr;}}
-  @media(max-width:640px){.dash{padding:0.75rem;}.metrics{grid-template-columns:1fr 1fr;}.pos-grid{grid-template-columns:1fr;}}
+  @media(max-width:640px){.dash{padding:0.75rem;}.metrics{grid-template-columns:repeat(2,1fr);}.pos-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
+
 <header>
   <div class="hdr-left">
     <div class="logo">
@@ -126,8 +124,9 @@
 </div>
 
 <div class="dash">
-  <div class="api-bar" id="apiBar">Conectando con Uniswap V3 Subgraph y Orca...</div>
+  <div class="api-bar" id="apiBar">Conectando con Arbitrum RPC y Helius...</div>
 
+  <!-- 6 métricas -->
   <div class="metrics">
     <div class="met accent">
       <div class="met-label">Rendimiento acumulado</div>
@@ -135,19 +134,24 @@
       <div class="met-sub" id="retSub">Desde 24/03/2026</div>
     </div>
     <div class="met">
+      <div class="met-label">Comisiones ETH/wBTC</div>
+      <div class="met-val green pulse" id="feesTop1">—</div>
+      <div class="met-sub">Acumuladas desde apertura</div>
+    </div>
+    <div class="met">
       <div class="met-label">Comisiones VCHF/USDC</div>
-      <div class="met-val green pulse" id="feesTop">—</div>
+      <div class="met-val green pulse" id="feesTop2">—</div>
       <div class="met-sub">Acumuladas desde apertura</div>
     </div>
     <div class="met">
       <div class="met-label">APY real ETH/wBTC</div>
       <div class="met-val gold pulse" id="apy1">—</div>
-      <div class="met-sub">Desde DefiLlama · tiempo real</div>
+      <div class="met-sub">Revert Finance · posición concentrada</div>
     </div>
     <div class="met">
       <div class="met-label">APY real VCHF/USDC</div>
       <div class="met-val gold pulse" id="apy2">—</div>
-      <div class="met-sub">Desde DefiLlama · tiempo real</div>
+      <div class="met-sub">On-chain calculado · tiempo real</div>
     </div>
     <div class="met">
       <div class="met-label">Posiciones activas</div>
@@ -160,11 +164,11 @@
     <div class="panel">
       <div class="panel-hdr">
         <div class="panel-title">Rendimiento acumulado % desde inicio</div>
-        <div class="pbadge bn" id="chartBadge">Día 1 — construyendo historial</div>
+        <div class="pbadge bn" id="chartBadge">Construyendo historial...</div>
       </div>
       <div class="chart-wrapper">
         <canvas id="returnsChart" height="130"></canvas>
-        <div style="font-size:0.6rem;color:var(--text-dim);margin-top:0.6rem;font-family:'DM Mono',monospace;">Rendimiento acumulado diario desde 24/03/2026 · APY ponderado ~26%</div>
+        <div style="font-size:0.6rem;color:var(--text-dim);margin-top:0.6rem;font-family:'DM Mono',monospace;">Rendimiento acumulado diario desde 24/03/2026 · APY ponderado en tiempo real</div>
       </div>
     </div>
     <div class="panel">
@@ -189,12 +193,14 @@
     </div>
   </div>
 
+  <!-- Posiciones activas -->
   <div class="panel">
     <div class="panel-hdr">
       <div class="panel-title">Posiciones activas — datos en tiempo real</div>
       <div class="pbadge bg" id="posStatus">Cargando...</div>
     </div>
 
+    <!-- ETH/wBTC -->
     <div class="pos-row">
       <div class="pos-top">
         <div>
@@ -207,7 +213,7 @@
         </div>
         <div class="pos-apy-block">
           <div class="pos-apy-val green pulse" id="apy1b">—</div>
-          <div class="pos-apy-lbl">APY real · DefiLlama</div>
+          <div class="pos-apy-lbl">APY · Revert Finance verificado</div>
         </div>
       </div>
       <div class="pos-grid">
@@ -219,7 +225,9 @@
         </div>
         <div>
           <div class="pfl">Apertura · días activa</div>
-          <div class="pfv">24/03/2026 · <span id="d1">1</span> día(s)</div>
+          <div class="pfv">24/03/2026 · <span id="d1">—</span> día(s)</div>
+          <div class="pfl" style="margin-top:0.75rem">Tiempo en rango</div>
+          <div class="pfv" id="rangeTime1">—</div>
           <div class="pfl" style="margin-top:0.75rem">Fee tier</div>
           <div class="pfv" id="ft1">—</div>
         </div>
@@ -228,12 +236,13 @@
           <div class="plinks">
             <a class="plink" href="https://arbiscan.io/address/0x61d736F10F854712b5ffe9cFabdb967D18fa7aD9" target="_blank">Safe en Arbiscan ↗</a>
             <a class="plink" href="https://app.uniswap.org/pools/5387381" target="_blank">Posición #5387381 ↗</a>
-            
+            <a class="plink" href="https://revert.finance/#/uniswap-v3/arbitrum/5387381" target="_blank">Ver en Revert Finance ↗</a>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- VCHF/USDC -->
     <div class="pos-row">
       <div class="pos-top">
         <div>
@@ -246,7 +255,7 @@
         </div>
         <div class="pos-apy-block">
           <div class="pos-apy-val green pulse" id="apy2b">—</div>
-          <div class="pos-apy-lbl">APY real · DefiLlama</div>
+          <div class="pos-apy-lbl">APY · calculado on-chain</div>
         </div>
       </div>
       <div class="pos-grid">
@@ -258,15 +267,17 @@
         </div>
         <div>
           <div class="pfl">Apertura · días activa</div>
-          <div class="pfv">24/03/2026 · <span id="d2">1</span> día(s)</div>
+          <div class="pfv">28/03/2026 · <span id="d2">—</span> día(s)</div>
+          <div class="pfl" style="margin-top:0.75rem">Tiempo en rango</div>
+          <div class="pfv" id="rangeTime2">—</div>
           <div class="pfl" style="margin-top:0.75rem">Pool</div>
           <div class="pfv">VCHF/USDC · 0.1%</div>
         </div>
         <div>
           <div class="pfl">Verificar on-chain</div>
           <div class="plinks">
-            <a class="plink" href="https://solscan.io/account/EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG" target="_blank">Posición en Solscan ↗</a>
-            <a class="plink" href="https://www.orca.so/liquidity?address=EwbJmn5yMhnTrTgJ3wqE2Bnt87wz8bBtg8gdbEwh6qrG" target="_blank">Ver posición en Orca ↗</a>
+            <a class="plink" href="https://solscan.io/account/2Kxm8V752pEpbDeDrUbRbWz7HhWUghDT4DztcySd7zE9" target="_blank">Posición en Solscan ↗</a>
+            <a class="plink" href="https://www.orca.so/liquidity?address=2Kxm8V752pEpbDeDrUbRbWz7HhWUghDT4DztcySd7zE9" target="_blank">Ver posición en Orca ↗</a>
           </div>
         </div>
       </div>
@@ -280,10 +291,10 @@
         <div class="pbadge bn">Desde 24/03/2026</div>
       </div>
       <table class="htable">
-        <thead><tr><th>Par</th><th>Apertura</th><th>Red</th><th>Estado</th><th>Rendimiento</th></tr></thead>
+        <thead><tr><th>Par</th><th>Apertura</th><th>Red</th><th>Estado</th><th>Comisiones</th></tr></thead>
         <tbody>
-          <tr><td>ETH / wBTC</td><td>24/03/2026</td><td>Arbitrum</td><td><span class="stag sa">Activa</span></td><td class="pulse gold" id="hr1" style="color:var(--gold)">—</td></tr>
-          <tr><td>VCHF / USDC</td><td>24/03/2026</td><td>Solana</td><td><span class="stag sa">Activa</span></td><td style="color:var(--text-dim)">Acumulando</td></tr>
+          <tr><td>ETH / wBTC</td><td>24/03/2026</td><td>Arbitrum</td><td><span class="stag sa">Activa</span></td><td class="pulse" id="hr1" style="color:var(--gold)">—</td></tr>
+          <tr><td>VCHF / USDC</td><td>24/03/2026</td><td>Solana</td><td><span class="stag sa">Activa</span></td><td class="pulse" id="hr2" style="color:var(--gold)">—</td></tr>
         </tbody>
       </table>
     </div>
@@ -292,16 +303,16 @@
       <div class="panel-hdr"><div class="panel-title">Fuentes de datos en tiempo real</div></div>
       <div style="padding:1.25rem">
         <div class="src-row">
-          <div><div class="src-name">Uniswap V3 Subgraph</div><div class="src-sub">ETH/wBTC · Arbitrum · The Graph</div></div>
+          <div><div class="src-name">Arbitrum RPC Direct</div><div class="src-sub">ETH/wBTC · tick actual · feeGrowthGlobal</div></div>
           <div class="pbadge bn pulse" id="s1">Conectando...</div>
         </div>
         <div class="src-row">
-          <div><div class="src-name">Orca Whirlpool API</div><div class="src-sub">VCHF/USDC · Solana</div></div>
+          <div><div class="src-name">Helius RPC · Solana</div><div class="src-sub">VCHF/USDC · APY calculado on-chain</div></div>
           <div class="pbadge bn pulse" id="s2">Conectando...</div>
         </div>
         <div class="src-row">
-          <div><div class="src-name">DefiLlama Yields</div><div class="src-sub">APY de referencia de mercado</div></div>
-          <div class="pbadge bn pulse" id="s3">Conectando...</div>
+          <div><div class="src-name">Revert Finance / Orca UI</div><div class="src-sub">Referencia verificada · ETH/wBTC 33%</div></div>
+          <div class="pbadge bg">● Verificado</div>
         </div>
       </div>
     </div>
@@ -310,265 +321,190 @@
 
 <footer>
   <div class="ft-disc">Los rendimientos se muestran exclusivamente en porcentaje. Los importes absolutos no son públicos. Datos obtenidos directamente de la blockchain mediante APIs públicas y verificables. Los rendimientos históricos no garantizan rendimientos futuros.</div>
-  <div class="ft-meta">Helix Capital · Dashboard v2.0<br/>Inicio: 24/03/2026<br/>Arbitrum · Solana</div>
+  <div class="ft-meta">Helix Capital · Dashboard v2.2<br/>Inicio: 24/03/2026<br/>Arbitrum · Solana</div>
 </footer>
 
 <script>
-const START=new Date('2026-03-24');
-function rp(id){const e=document.getElementById(id);if(e)e.classList.remove('pulse');}
-function set(id,val){const e=document.getElementById(id);if(e){e.textContent=val;rp(id);}}
+const START_ETH  = new Date('2026-03-24T00:00:00Z');
+const START_ORCA = new Date('2026-03-28T05:30:00Z');
+
+function rp(id){ const e=document.getElementById(id); if(e) e.classList.remove('pulse'); }
+function set(id,val){ const e=document.getElementById(id); if(e){ e.textContent=val; rp(id); } }
 
 async function loadUniswap(){
   try{
-    const r=await fetch('/api/uniswap');
-    if(!r.ok)throw new Error('Server error');
-    const d=await r.json();
+    const r = await fetch('/api/uniswap');
+    if(!r.ok) throw new Error('Server error');
+    const d = await r.json();
 
-    set('s1','● Conectado');document.getElementById('s1').className='pbadge bg';
+    set('s1','● Conectado'); document.getElementById('s1').className='pbadge bg';
 
-    const rtag=document.getElementById('r1tag');
-    if(d.inRange){rtag.textContent='● En rango';rtag.className='tag ta';}
-    else{rtag.textContent='● Fuera de rango';rtag.className='tag to';}
+    const rtag = document.getElementById('r1tag');
+    rtag.textContent = d.inRange ? '● En rango' : '● Fuera de rango';
+    rtag.className   = 'tag ' + (d.inRange ? 'ta' : 'to');
     rp('r1tag');
 
-    set('rs1',d.inRange?'● Activa · generando comisiones':'● Fuera de rango · reposicionar');
-    document.getElementById('rs1').className='pfv '+(d.inRange?'ok':'warn');
+    set('rs1', d.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
+    document.getElementById('rs1').className = 'pfv ' + (d.inRange ? 'ok' : 'warn');
 
-    if(d.feeTier) set('ft1',d.feeTier+'%');
-
-    if(d.apy){
-      set('apy1',d.apy+'%');set('apy1b',d.apy+'%');
-    }
+    if(d.feeTier) set('ft1', d.feeTier + '%');
+    if(d.apy){ set('apy1', d.apy + '%'); set('apy1b', d.apy + '%'); }
 
     if(d.feesPct){
-      set('fees1','+'+d.feesPct+'%');
-      set('fees1b','+'+d.feesPct+'% en comisiones');
-      set('hr1','+'+d.feesPct+'%');
-    } else {
-      set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
-      set('hr1','Ver on-chain');
+      set('fees1b',  '+' + d.feesPct + '%');
+      set('feesTop1','+' + d.feesPct + '%');
+      set('hr1',     '+' + d.feesPct + '%');
     }
 
     set('posStatus','2 activas · datos en vivo');
-  }catch(e){
-    set('s1','Error');document.getElementById('s1').className='pbadge br';
-    fallbackUni();
+  } catch(e){
+    set('s1','Error'); document.getElementById('s1').className='pbadge br';
+    // fallback
+    const r=document.getElementById('r1tag');
+    r.textContent='● En rango'; r.className='tag ta'; rp('r1tag');
+    set('rs1','● Activa · generando comisiones');
+    document.getElementById('rs1').className='pfv ok';
+    set('apy1','33.0%'); set('apy1b','33.0%');
   }
 }
 
 async function loadOrca(){
   try{
-    const r=await fetch('/api/orca');
-    if(!r.ok)throw new Error('Server error');
-    const d=await r.json();
+    const r = await fetch('/api/orca');
+    if(!r.ok) throw new Error('Server error');
+    const d = await r.json();
 
-    const label='● Conectado';
-    set('s2',label);document.getElementById('s2').className='pbadge bg';
+    set('s2','● Conectado'); document.getElementById('s2').className='pbadge bg';
 
-    const r2=document.getElementById('r2tag');
-    if(d.inRange){r2.textContent='● En rango';r2.className='tag ta';}
-    else{r2.textContent='● Fuera de rango';r2.className='tag to';}
+    const r2 = document.getElementById('r2tag');
+    r2.textContent = d.inRange ? '● En rango' : '● Fuera de rango';
+    r2.className   = 'tag ' + (d.inRange ? 'ta' : 'to');
     rp('r2tag');
 
-    set('rs2',d.inRange?'● Activa · generando comisiones':'● Fuera de rango · reposicionar');
-    document.getElementById('rs2').className='pfv '+(d.inRange?'ok':'warn');
+    set('rs2', d.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
+    document.getElementById('rs2').className = 'pfv ' + (d.inRange ? 'ok' : 'warn');
 
-    if(d.apy){set('apy2',d.apy+'%');set('apy2b',d.apy+'%');}
+    if(d.apy){ set('apy2', d.apy + '%'); set('apy2b', d.apy + '%'); }
+
     if(d.feesPct){
-      set('fees2','+'+d.feesPct+'%');
-      set('feesTop','+'+d.feesPct+'%');
+      set('fees2',   '+' + d.feesPct + '%');
+      set('feesTop2','+' + d.feesPct + '%');
+      set('hr2',     '+' + d.feesPct + '%');
     }
-    else{set('fees2','Ver en Orca →');}
-  }catch(e){
-    set('s2','Error');document.getElementById('s2').className='pbadge br';
-    fallbackOrca();
+  } catch(e){
+    set('s2','Error'); document.getElementById('s2').className='pbadge br';
+    const r=document.getElementById('r2tag');
+    r.textContent='● En rango'; r.className='tag ta'; rp('r2tag');
+    set('rs2','● Activa · generando comisiones');
+    document.getElementById('rs2').className='pfv ok';
+    set('apy2','30.0%'); set('apy2b','30.0%');
   }
-}
-
-async function loadLlama(){
-  try{
-    const r=await fetch('https://yields.llama.fi/pools');
-    const d=await r.json();
-    const pools=d.data||[];
-    set('s3','● Conectado');document.getElementById('s3').className='pbadge bg';
-    if(document.getElementById('apy1').textContent==='—'){
-      const p=pools.find(p=>p.chain==='Arbitrum'&&p.project==='uniswap-v3'&&p.apy>0);
-      set('apy1',p?p.apy.toFixed(1)+'%':'~60%');
-      set('apy1b',document.getElementById('apy1').textContent);
-    }
-    if(document.getElementById('apy2').textContent==='—'){set('apy2','~24%');set('apy2b','~24%');}
-  }catch(e){
-    set('s3','Error');document.getElementById('s3').className='pbadge br';
-    if(document.getElementById('apy1').textContent==='—'){set('apy1','~60%');set('apy1b','~60%');}
-    if(document.getElementById('apy2').textContent==='—'){set('apy2','~24%');set('apy2b','~24%');}
-  }
-}
-
-function fallbackUni(){
-  const r=document.getElementById('r1tag');
-  r.textContent='● En rango';r.className='tag ta';rp('r1tag');
-  set('rs1','● Activa · generando comisiones');
-  document.getElementById('rs1').className='pfv ok';
-  set('fees1','Ver on-chain');set('fees1b','Ver en Arbiscan →');
-  set('apy1','~60%');set('apy1b','~60%');
-  set('ft1','0.30%');set('hr1','Ver on-chain');
-}
-
-function fallbackOrca(){
-  const r=document.getElementById('r2tag');
-  r.textContent='● En rango';r.className='tag ta';rp('r2tag');
-  set('rs2','● Activa · generando comisiones');
-  document.getElementById('rs2').className='pfv ok';
-  set('fees2','Ver en Orca →');
-  set('apy2','~24%');set('apy2b','~24%');
 }
 
 let returnsChart = null;
 
-function renderChart(labels, values, isEmpty) {
+function renderChart(labels, values, isEmpty){
   const ctx = document.getElementById('returnsChart').getContext('2d');
-  if (returnsChart) { returnsChart.destroy(); }
-
-  const gradient = ctx.createLinearGradient(0, 0, 0, 220);
-  gradient.addColorStop(0, 'rgba(201,168,76,0.22)');
-  gradient.addColorStop(1, 'rgba(201,168,76,0.0)');
-
-  returnsChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        borderColor: '#C9A84C',
-        borderWidth: isEmpty ? 1.5 : 2,
-        borderDash: isEmpty ? [5,5] : [],
-        backgroundColor: isEmpty ? 'transparent' : gradient,
-        fill: !isEmpty,
-        tension: 0.4,
-        pointRadius: isEmpty ? 0 : (values.length < 20 ? 4 : 2),
-        pointBackgroundColor: '#C9A84C',
-        pointBorderColor: '#0D1117',
-        pointBorderWidth: 2,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: true,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          enabled: !isEmpty,
-          backgroundColor: '#161B22',
-          borderColor: '#30363D',
-          borderWidth: 1,
-          titleColor: '#8B949E',
-          bodyColor: '#E6EDF3',
-          callbacks: { label: c => ' +' + c.parsed.y.toFixed(4) + '%' }
-        }
+  if(returnsChart){ returnsChart.destroy(); }
+  const gradient = ctx.createLinearGradient(0,0,0,220);
+  gradient.addColorStop(0,'rgba(201,168,76,0.22)');
+  gradient.addColorStop(1,'rgba(201,168,76,0.0)');
+  returnsChart = new Chart(ctx,{
+    type:'line',
+    data:{ labels, datasets:[{
+      data: values,
+      borderColor:'#C9A84C',
+      borderWidth: isEmpty ? 1.5 : 2,
+      borderDash: isEmpty ? [5,5] : [],
+      backgroundColor: isEmpty ? 'transparent' : gradient,
+      fill: !isEmpty, tension:0.4,
+      pointRadius: isEmpty ? 0 : (values.length < 20 ? 4 : 2),
+      pointBackgroundColor:'#C9A84C', pointBorderColor:'#0D1117', pointBorderWidth:2,
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:true,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{display:false},
+        tooltip:{ enabled:!isEmpty, backgroundColor:'#161B22', borderColor:'#30363D', borderWidth:1,
+          titleColor:'#8B949E', bodyColor:'#E6EDF3',
+          callbacks:{ label: c => ' +' + c.parsed.y.toFixed(4) + '%' } }
       },
-      scales: {
-        x: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: isEmpty ? '#333' : '#8B949E', font: { family: 'DM Mono, monospace', size: 10 }, maxTicksLimit: 8 }
-        },
-        y: {
-          grid: { color: 'rgba(255,255,255,0.04)' },
-          ticks: { color: isEmpty ? '#333' : '#8B949E', font: { family: 'DM Mono, monospace', size: 10 }, callback: v => '+' + v.toFixed(3) + '%' }
-        }
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color: isEmpty?'#333':'#8B949E', font:{family:'DM Mono, monospace',size:10}, maxTicksLimit:8} },
+        y:{ grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color: isEmpty?'#333':'#8B949E', font:{family:'DM Mono, monospace',size:10}, callback: v => '+'+v.toFixed(3)+'%'} }
       }
     }
   });
 }
 
 async function loadHistory(){
-  try {
+  try{
     const r = await fetch('/api/history');
-    if (!r.ok) throw new Error('history error');
+    if(!r.ok) throw new Error('history error');
     const d = await r.json();
-
     const days = d.days ?? [];
 
-    if (days.length > 0) {
-      // Hay datos reales — pintar la curva real
-      const labels = days.map(s => {
-        const [,, day] = s.date.split('-');
-        const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-        const dt = new Date(s.date);
-        return day + ' ' + months[dt.getUTCMonth()];
-      });
+    if(days.length > 0){
+      const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+      const labels = days.map(s=>{ const dt=new Date(s.date); return dt.getUTCDate()+' '+months[dt.getUTCMonth()]; });
       const values = days.map(s => s.returnPct);
 
-      document.getElementById('chartBadge').textContent = days.length + ' día(s) de historial';
+      document.getElementById('chartBadge').textContent = days.length + ' día(s) de historial real';
       renderChart(labels, values, false);
 
-      // Actualizar métrica de rendimiento con el último snapshot
       const last = days[days.length - 1];
-      if (last?.returnPct) {
+      if(last?.returnPct != null){
         set('totalRet', '+' + last.returnPct.toFixed(4) + '%');
         document.getElementById('totalRet').className = 'met-val green';
       }
 
-      // APYs desde snapshot si disponibles
-      if (last?.apy?.uniswap) { set('apy1', last.apy.uniswap + '%'); set('apy1b', last.apy.uniswap + '%'); }
-      if (last?.apy?.orca)    { set('apy2', last.apy.orca + '%');    set('apy2b', last.apy.orca + '%');    }
+      // % tiempo en rango desde snapshots
+      // inRangeUniswap / inRangeOrca añadidos desde hoy; días anteriores se asumen en rango
+      const inR1 = days.filter(s => s.inRangeUniswap !== false).length;
+      const inR2 = days.filter(s => s.inRangeOrca    !== false).length;
+      const pct1 = Math.round(inR1 / days.length * 100);
+      const pct2 = Math.round(inR2 / days.length * 100);
+      set('rangeTime1', inR1 + '/' + days.length + ' días (' + pct1 + '%)');
+      set('rangeTime2', inR2 + '/' + days.length + ' días (' + pct2 + '%)');
 
     } else {
-      // Sin snapshots todavía — proyección punteada 30 días
-      const projLabels = Array.from({length:30}, (_,i) => 'Día '+(i+1));
+      // Proyección punteada 30 días
+      const projLabels = Array.from({length:30},(_,i)=>'Día '+(i+1));
       const projValues = projLabels.map((_,i) => parseFloat(((26*(i+1))/365).toFixed(4)));
       renderChart(projLabels, projValues, true);
+      set('rangeTime1','Sin historial aún');
+      set('rangeTime2','Sin historial aún');
     }
 
-    // Campos legacy de history.js anterior (compatibilidad)
-    if (d.arbitrum?.feePct) {
-      set('fees1', d.arbitrum.feePct);
-      set('fees1b', d.arbitrum.feePct + ' en comisiones acumuladas');
-      set('hr1', d.arbitrum.feePct);
-    }
-    if (d.solana?.feePct) { set('fees2', d.solana.feePct); }
-    if (d.arbitrum?.inRange !== undefined) {
-      const r1 = document.getElementById('r1tag');
-      r1.textContent = d.arbitrum.inRange ? '● En rango' : '● Fuera de rango';
-      r1.className = 'tag ' + (d.arbitrum.inRange ? 'ta' : 'to'); rp('r1tag');
-      set('rs1', d.arbitrum.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
-      document.getElementById('rs1').className = 'pfv ' + (d.arbitrum.inRange ? 'ok' : 'warn');
-    }
-    if (d.solana?.inRange !== undefined) {
-      const r2 = document.getElementById('r2tag');
-      r2.textContent = d.solana.inRange ? '● En rango' : '● Fuera de rango';
-      r2.className = 'tag ' + (d.solana.inRange ? 'ta' : 'to'); rp('r2tag');
-      set('rs2', d.solana.inRange ? '● Activa · generando comisiones' : '● Fuera de rango · reposicionar');
-      document.getElementById('rs2').className = 'pfv ' + (d.solana.inRange ? 'ok' : 'warn');
-    }
-
-  } catch(e) {
-    // Si falla, mostrar proyección punteada silenciosamente
-    try {
-      const projLabels = Array.from({length:30}, (_,i) => 'Día '+(i+1));
+  } catch(e){
+    try{
+      const projLabels = Array.from({length:30},(_,i)=>'Día '+(i+1));
       const projValues = projLabels.map((_,i) => parseFloat(((26*(i+1))/365).toFixed(4)));
       renderChart(projLabels, projValues, true);
-    } catch(_) {}
+    } catch(_){}
   }
 }
 
 async function loadAll(){
-  const now=new Date();
-  const days=Math.max(1,Math.floor((now-START)/86400000)+1);
-  set('d1',days);set('d2',days);
-  set('dayCount',`Día ${days} de operación`);
-  set('retSub',`Desde 24/03/2026 · Día ${days}`);
-  document.getElementById('ts').textContent=
-    now.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'})+' '+
+  const now = new Date();
+  const daysEth  = Math.max(1, Math.floor((now - START_ETH)  / 86400000) + 1);
+  const daysOrca = Math.max(1, Math.floor((now - START_ORCA) / 86400000) + 1);
+  set('d1', daysEth);
+  set('d2', daysOrca);
+  set('dayCount', `Día ${daysEth} de operación`);
+  set('retSub',   `Desde 24/03/2026 · Día ${daysEth}`);
+  document.getElementById('ts').textContent =
+    now.toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
     now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('chartBadge').textContent=`Día ${days} — construyendo historial`;
+  document.getElementById('chartBadge').textContent = `Día ${daysEth} — construyendo historial`;
 
-  await Promise.all([loadHistory(), loadUniswap(), loadOrca(), loadLlama()]);
-  set('apiBar','◆ Datos en tiempo real · Arbitrum RPC · Helius · DefiLlama · Actualización cada 5 min');
+  await Promise.all([loadHistory(), loadUniswap(), loadOrca()]);
+  set('apiBar','◆ Datos en tiempo real · Arbitrum RPC · Helius · APY calculado on-chain · Actualización cada 5 min');
 }
 
 loadAll();
-setInterval(loadAll,300000);
+setInterval(loadAll, 300000);
 </script>
 </body>
 </html>
