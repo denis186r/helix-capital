@@ -62,7 +62,6 @@ function calcUniswapDeltaAPY(prev, curr, currentUni) {
 
     const sqrtPrice = Number(BigInt(currentUni.sqrtPriceX96)) / Math.pow(2, 96);
     const priceWETH_per_wBTC = (sqrtPrice * sqrtPrice) / 1e10;
-
     const fees_total_WETH = (fees_WETH_raw / 1e18) + (fees_wBTC_raw / 1e8) * priceWETH_per_wBTC;
 
     const sqL = Math.pow(1.0001, curr.tickLower / 2);
@@ -86,7 +85,55 @@ function calcUniswapDeltaAPY(prev, curr, currentUni) {
     const apy = (fees_total_WETH / pos_WETH) * 365 * 100;
     if (apy < 1 || apy > 500) return null;
     return Math.round(apy * 10) / 10;
+  } catch(e) { return null; }
+}
 
+function calcOrcaDeltaAPY(prev, curr, currentOrca) {
+  try {
+    if (!prev?.feeGrowthGlobalA || !curr?.feeGrowthGlobalA) return null;
+    if (!currentOrca?.liquidity || !currentOrca?.sqrtPriceX64) return null;
+
+    const Q64  = 2n ** 64n;
+    const Q128 = 2n ** 128n;
+
+    const fgA_today = BigInt(curr.feeGrowthGlobalA);
+    const fgB_today = BigInt(curr.feeGrowthGlobalB);
+    const fgA_prev  = BigInt(prev.feeGrowthGlobalA);
+    const fgB_prev  = BigInt(prev.feeGrowthGlobalB);
+
+    const deltaA = fgA_today >= fgA_prev ? fgA_today - fgA_prev : Q128 - fgA_prev + fgA_today;
+    const deltaB = fgB_today >= fgB_prev ? fgB_today - fgB_prev : Q128 - fgB_prev + fgB_today;
+
+    const liquidity = BigInt(currentOrca.liquidity);
+    const feesA_raw = Number(deltaA * liquidity / Q64); // raw VCHF (9 dec)
+    const feesB_raw = Number(deltaB * liquidity / Q64); // raw USDC (6 dec)
+    if (feesA_raw < 0 || feesB_raw < 0) return null;
+
+    const sqC = Number(BigInt(currentOrca.sqrtPriceX64)) / Number(Q64);
+    const priceVCHF = sqC * sqC * 1000; // USDC per VCHF (ajuste decimales: 10^9/10^6=10^3)
+
+    const feesUSD = (feesA_raw / 1e9) * priceVCHF + (feesB_raw / 1e6);
+
+    const sqL = Math.pow(1.0001, curr.tickLowerOrca / 2);
+    const sqU = Math.pow(1.0001, curr.tickUpperOrca / 2);
+    const L   = Number(liquidity);
+
+    let amtA_raw, amtB_raw;
+    if (sqC <= sqL) {
+      amtA_raw = L * (1/sqL - 1/sqU); amtB_raw = 0;
+    } else if (sqC >= sqU) {
+      amtA_raw = 0; amtB_raw = L * (sqU - sqL);
+    } else {
+      amtA_raw = L * (1/sqC - 1/sqU);
+      amtB_raw = L * (sqC - sqL);
+    }
+
+    const posValueUSD = (amtA_raw / 1e9) * priceVCHF + (amtB_raw / 1e6);
+    if (posValueUSD <= 0) return null;
+
+    const apy = (feesUSD / posValueUSD) * 365 * 100;
+    if (apy < 1 || apy > 500) return null;
+    return Math.round(apy * 10) / 10;
   } catch(e) { return null; }
 }
 
@@ -97,7 +144,6 @@ export default async function handler(req, res) {
     const dayKey    = now.toISOString().slice(0, 10);
     const dayNumber = Math.floor((now - LAUNCH_DATE) / (1000 * 60 * 60 * 24)) + 1;
 
-    // --- Leer índice y snapshot anterior ---
     const rawIndex = await kvGet("snapshot:index");
     let index = [];
     if (Array.isArray(rawIndex)) {
@@ -113,10 +159,11 @@ export default async function handler(req, res) {
       prevSnap = parseSnap(await kvGet(`snapshot:${sortedPast[sortedPast.length - 1]}`));
     }
 
-    // --- APY ---
-    const APY_UNI_DEFAULT = 33;
-    const apyOrcaFromAPI  = parseFloat(orca?.apy ?? 0);
+    const APY_UNI_DEFAULT  = 33;
+    const APY_ORCA_DEFAULT = 30;
+    const apyOrcaFromAPI   = parseFloat(orca?.apy ?? 0);
 
+    // APY Uniswap: delta real o fallback 33
     let apyUniswap = APY_UNI_DEFAULT;
     if (prevSnap && uniswap?.feeGrowthGlobal0) {
       const currFGData = {
@@ -133,12 +180,29 @@ export default async function handler(req, res) {
       if (realAPY !== null) apyUniswap = realAPY;
     }
 
-    const apyOrca     = orca?.inRange ? apyOrcaFromAPI : 0;
-    const apyWeighted = (apyUniswap + apyOrca) / 2;
+    // APY Orca: delta real o fallback 30
+    let apyOrca = orca?.inRange ? apyOrcaFromAPI : 0;
+    if (orca?.inRange && prevSnap && orca?.feeGrowthGlobalA) {
+      const currOrcaData = {
+        feeGrowthGlobalA: orca.feeGrowthGlobalA,
+        feeGrowthGlobalB: orca.feeGrowthGlobalB,
+        tickLowerOrca: orca.tickLower,
+        tickUpperOrca: orca.tickUpper,
+      };
+      const prevOrcaData = {
+        feeGrowthGlobalA: prevSnap.feeGrowthGlobalA,
+        feeGrowthGlobalB: prevSnap.feeGrowthGlobalB,
+        tickLowerOrca: prevSnap.tickLowerOrca,
+        tickUpperOrca: prevSnap.tickUpperOrca,
+      };
+      const realOrcaAPY = calcOrcaDeltaAPY(prevOrcaData, currOrcaData, orca);
+      if (realOrcaAPY !== null) apyOrca = realOrcaAPY;
+      else if (orca?.inRange) apyOrca = APY_ORCA_DEFAULT; // fallback si delta falla
+    }
 
-    // --- returnPct acumulativo (no retrocede nunca) ---
-    const prevReturn = prevSnap?.returnPct ?? 0;
-    const returnPct  = parseFloat((prevReturn + apyWeighted / 365).toFixed(4));
+    const apyWeighted = (apyUniswap + apyOrca) / 2;
+    const prevReturn  = prevSnap?.returnPct ?? 0;
+    const returnPct   = parseFloat((prevReturn + apyWeighted / 365).toFixed(4));
 
     const snapshot = {
       date: dayKey,
@@ -151,10 +215,16 @@ export default async function handler(req, res) {
       returnPct,
       inRangeUniswap: uniswap?.inRange ?? true,
       inRangeOrca:    orca?.inRange    ?? true,
+      // Uniswap fields
       feeGrowthGlobal0: uniswap?.feeGrowthGlobal0 ?? null,
       feeGrowthGlobal1: uniswap?.feeGrowthGlobal1 ?? null,
       tickLower: uniswap?.tickLower ?? null,
       tickUpper: uniswap?.tickUpper ?? null,
+      // Orca fields (nuevos)
+      feeGrowthGlobalA: orca?.feeGrowthGlobalA ?? null,
+      feeGrowthGlobalB: orca?.feeGrowthGlobalB ?? null,
+      tickLowerOrca: orca?.tickLower ?? null,
+      tickUpperOrca: orca?.tickUpper ?? null,
       savedAt: now.toISOString(),
     };
 
