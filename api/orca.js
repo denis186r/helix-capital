@@ -20,6 +20,38 @@ async function getFeesCarryover() {
   } catch(e) { return FEES_CARRYOVER_DEFAULT; }
 }
 
+async function getLastSnapshotOrcaAPY() {
+  try {
+    const url = process.env.KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN;
+    if (!url || !token) return null;
+    const r1 = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['GET', 'snapshot:index']])
+    });
+    const j1 = await r1.json();
+    const raw1 = j1[0]?.result;
+    if (!raw1) return null;
+    const p1 = JSON.parse(raw1);
+    const index = typeof p1 === 'string' ? JSON.parse(p1) : p1;
+    if (!Array.isArray(index) || index.length === 0) return null;
+    const lastKey = index[index.length - 1];
+    const r2 = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['GET', `snapshot:${lastKey}`]])
+    });
+    const j2 = await r2.json();
+    const raw2 = j2[0]?.result;
+    if (!raw2) return null;
+    const p2 = JSON.parse(raw2);
+    const snap = typeof p2 === 'string' ? JSON.parse(p2) : p2;
+    const apy = snap?.apy?.orca;
+    return (typeof apy === 'number' && apy > 0) ? apy : null;
+  } catch(e) { return null; }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -70,99 +102,30 @@ export default async function handler(req, res) {
   const daysActive = Math.max(0.1, (Date.now() / 1000 - OPEN_TIMESTAMP) / 86400);
 
   try {
-    // --- Read position account ---
     const posAcc = await getAccount(POSITION_ADDRESS);
     if (!posAcc) throw new Error('Position not found');
     const pos = Buffer.from(posAcc.data[0], 'base64');
 
-    // Verified position offsets:
-    const poolPubkey  = base58Encode(pos.slice(8, 40));  // offset 8: whirlpool pubkey
-    const posLiquidity   = readU128LE(pos, 72);  // offset 72: liquidity
-    const tickLower      = readI32LE(pos, 88);   // offset 88: tickLowerIndex (confirmed)
-    const tickUpper      = readI32LE(pos, 92);   // offset 92: tickUpperIndex (confirmed)
-    const fgCheckpointA  = readU128LE(pos, 96);  // offset 96: feeGrowthCheckpointA
-    const feeOwedA_raw   = readU64LE(pos, 112);  // offset 112: feeOwedA
-    const fgCheckpointB  = readU128LE(pos, 120); // offset 120: feeGrowthCheckpointB
-    const feeOwedB_raw   = readU64LE(pos, 136);  // offset 136: feeOwedB
+    const poolPubkey = base58Encode(pos.slice(8, 40));
+    const posLiquidity = readU128LE(pos, 72);
+    const tickLower    = readI32LE(pos, 88);
+    const tickUpper    = readI32LE(pos, 92);
 
-    // --- Read pool account ---
     const poolAcc = await getAccount(poolPubkey);
     if (!poolAcc) throw new Error('Pool not found');
     const pool = Buffer.from(poolAcc.data[0], 'base64');
 
-    // Verified pool offsets:
-    const sqrtPriceX64    = readU128LE(pool, 65);   // offset 65: sqrtPrice Q64.64 (confirmed via feeRate@45, tick@81)
-    const currentTick     = readI32LE(pool, 81);    // offset 81: tickCurrentIndex (confirmed)
-    const feeGrowthGlobalA = readU128LE(pool, 165); // offset 165: feeGrowthGlobalA
-    const feeGrowthGlobalB = readU128LE(pool, 245); // offset 245: feeGrowthGlobalB
+    const sqrtPriceX64   = readU128LE(pool, 65);
+    const currentTick    = readI32LE(pool, 81);
+    const feeGrowthGlobalA = readU128LE(pool, 165);
+    const feeGrowthGlobalB = readU128LE(pool, 245);
 
     const inRange = currentTick >= tickLower && currentTick <= tickUpper;
 
-    // === Real APY calculation ===
-    // Formula: fees = feeOwed + (feeGrowthGlobal - checkpoint) * liquidity >> 64
-    // Valid when price hasn't crossed tick bounds since position opened (our normal case).
-    // Orca uses Q64.64 format → divide by 2^64 (not 2^128 like Uniswap V3).
-    let apyReal = null;
-    let feesUSD = null;
-    let posValueUSD = null;
-
-    try {
-      const Q64  = 2n ** 64n;
-      const Q128 = 2n ** 128n; // for wraparound check
-
-      // Handle potential u128 wraparound
-      const deltaA = feeGrowthGlobalA >= fgCheckpointA
-        ? feeGrowthGlobalA - fgCheckpointA
-        : Q128 - fgCheckpointA + feeGrowthGlobalA;
-      const deltaB = feeGrowthGlobalB >= fgCheckpointB
-        ? feeGrowthGlobalB - fgCheckpointB
-        : Q128 - fgCheckpointB + feeGrowthGlobalB;
-
-      const totalFeeA = feeOwedA_raw + (deltaA * posLiquidity / Q64); // raw VCHF (9 dec)
-      const totalFeeB = feeOwedB_raw + (deltaB * posLiquidity / Q64); // raw USDC (6 dec)
-
-      const feeVCHF = Number(totalFeeA) / 1e9;
-      const feeUSDC = Number(totalFeeB) / 1e6;
-
-      // VCHF price in USDC:
-      // sqrtPriceX64 is Q64.64 → actual_sqrtPrice = sqrtPriceX64 / 2^64
-      // price_raw = actual_sqrtPrice^2 = USDC_raw / VCHF_raw
-      // price_human (USDC per VCHF) = price_raw * 10^decVCHF / 10^decUSDC = price_raw * 1000
-      const sqC = Number(sqrtPriceX64) / Number(Q64);
-      const priceVCHF = sqC * sqC * 1000; // 1 VCHF = X USDC
-
-      feesUSD = feeVCHF * priceVCHF + feeUSDC;
-
-      // Position value using Orca's amount formulas:
-      // amount_A_raw = L * (1/sqC - 1/sqU)  [VCHF raw]
-      // amount_B_raw = L * (sqC - sqL)      [USDC raw]
-      // where sqL/sqU = sqrt(1.0001^tick) in same float scale as sqC
-      const sqL = Math.pow(1.0001, tickLower / 2);
-      const sqU = Math.pow(1.0001, tickUpper / 2);
-      const L = Number(posLiquidity);
-
-      let amtA_raw, amtB_raw;
-      if (sqC <= sqL) {
-        amtA_raw = L * (1/sqL - 1/sqU); amtB_raw = 0;
-      } else if (sqC >= sqU) {
-        amtA_raw = 0; amtB_raw = L * (sqU - sqL);
-      } else {
-        amtA_raw = L * (1/sqC - 1/sqU);
-        amtB_raw = L * (sqC - sqL);
-      }
-
-      posValueUSD = (amtA_raw / 1e9) * priceVCHF + (amtB_raw / 1e6);
-
-      if (posValueUSD > 1 && feesUSD >= 0 && daysActive > 0.1) {
-        const apy = (feesUSD / posValueUSD) / daysActive * 365 * 100;
-        if (apy >= 1 && apy <= 500) apyReal = apy.toFixed(1);
-      }
-    } catch(calcErr) {
-      // Calculation failed, fall through to fallback
-    }
-
-    const apyFinal = inRange ? (apyReal ?? String(APY_FALLBACK)) : '0.0';
-    const apyForFees = parseFloat(inRange ? (apyReal ?? APY_FALLBACK) : 0);
+    // APY para mostrar en dashboard: leer del último snapshot (calculado por delta)
+    const lastAPY = await getLastSnapshotOrcaAPY();
+    const apyFinal = inRange ? String(lastAPY ?? APY_FALLBACK) : '0.0';
+    const apyForFees = parseFloat(inRange ? (lastAPY ?? APY_FALLBACK) : 0);
     const feesPct = (carryover + apyForFees * daysActive / 365).toFixed(4);
 
     return res.status(200).json({
@@ -171,9 +134,11 @@ export default async function handler(req, res) {
       feesPct,
       tickLower, tickUpper, currentTick,
       poolAddress: poolPubkey,
-      feesUSD:     feesUSD    !== null ? feesUSD.toFixed(4)    : null,
-      posValueUSD: posValueUSD !== null ? posValueUSD.toFixed(2) : null,
-      source: apyReal ? 'on-chain-calculated' : 'fallback',
+      liquidity: posLiquidity.toString(),
+      sqrtPriceX64: sqrtPriceX64.toString(),
+      feeGrowthGlobalA: feeGrowthGlobalA.toString(),
+      feeGrowthGlobalB: feeGrowthGlobalB.toString(),
+      source: lastAPY ? 'snapshot-delta' : 'fallback',
     });
 
   } catch(err) {
